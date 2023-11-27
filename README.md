@@ -11,7 +11,7 @@
 
 ## Pendahuluan
 
-Proyek ini ditujukan sebagai tugas proyek tengah semester kelompok B03 pada mata kuliah PBP 2023/2024.
+Proyek ini ditujukan sebagai tugas proyek akhir semester kelompok B03 pada mata kuliah PBP 2023/2024.
 
 Nama Anggota Kelompok B03:
 - [Muzaki Ahmad Ridho Azizy](https://github.com/muzakiahmdz) 		(2206824924)
