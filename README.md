@@ -26,7 +26,7 @@ Berita acara : [Link](https://docs.google.com/spreadsheets/d/1Gc-QoVwXLlock9_Rs5
 
 ## Cerita Aplikasi 
 
-Aplikasi **Bukoo** merupakan platform yang dirancang untuk pecinta buku yang ingin menjelajahi lebih koleksi-koleksi buku yang ada di dunia. Meskipun pengguna tidak dapat membaca buku secara langsung di aplikasi ini, mereka dapat menemukan informasi rinci tentang berbagai koleksi buku, mencari koleksi buku berdasarkan judul, kategori, dan genre, membuat daftar favorit, dan membuat review mengenai suatu buku, melihat leaderboards buku favorit dan leaderboard user aktif, dan melihat rekomendasi buku berdasarkan preferensi pengguna.
+Aplikasi **Bukoo** merupakan platform yang dirancang untuk pecinta buku yang ingin menjelajahi lebih koleksi-koleksi buku yang ada di dunia. Meskipun pengguna tidak dapat membaca buku secara langsung di aplikasi ini, mereka dapat menemukan informasi rinci tentang berbagai koleksi buku, mencari koleksi buku berdasarkan judul, kategori, dan genre, membuat daftar favorit, dan membuat review mengenai suatu buku, dan melihat rekomendasi buku berdasarkan preferensi pengguna.
 
 ## Daftar Modul
 ### 1. Modul Koleksi Buku (oleh Ilham Abdillah Alhamdi)
@@ -41,13 +41,10 @@ Kami berencana untuk membuat sebuah kolom untuk user memberikan pendapat tentang
   - Bookmark
       Selain itu, modul ini akan berfungsi untuk user ketika ada sebuah buku yang menarik untuk dibaca atau dibeli dari sumber lain nantinya. User dapat                 menandai buku yang menarik tersebut untuk dapat dilihat nanti jadi tidak perlu untuk mencarinya lagi.
 
-### 4. Modul Leaderboard (oleh Wahyu Aji Aruma Sekar Puri)
-Modul leaderboard berkaitan dengan modul review dimana akan menampilkan data buku-buku yang paling banyak di review (Recommended atau Not Recommended)             berdasarkan total akumulasi review yang diberikan oleh user. 
-
-### 5. Modul Dashboard Admin (oleh Fayya Salwa Azheva)
+### 4. Modul Dashboard Admin (oleh Fayya Salwa Azheva)
 Pada modul ini Admin dapat melakukan verifikasi terhadap buku yang diajukan oleh Author. Admin dapat menyetujui atau menolak pengajuan buku tersebut.
 
-### 6. Modul Forum Diskusi (oleh Wahyu Aji Aruma Sekar Puri)
+### 5. Modul Forum Diskusi (oleh Wahyu Aji Aruma Sekar Puri)
 Modul forum diskusi berfungsi sebagai tempat untuk pembaca dan penulis memberikan ruang bagi pembaca dan penulis untuk berbagi interaksi pendapat, pengalaman, dan saran tentang buku-buku yang mereka baca atau tulis. 
 
 ## Sumber Dataset
