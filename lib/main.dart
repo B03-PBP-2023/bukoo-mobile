@@ -22,7 +22,8 @@ class App extends StatelessWidget {
         title: "Bukoo",
         theme: ThemeData(
           textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
-          colorScheme: const ColorScheme.light().copyWith(
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFFADC4CE),
               primary: const Color(0xFFADC4CE),
               secondary: const Color(0xFF354259)),
           useMaterial3: true,

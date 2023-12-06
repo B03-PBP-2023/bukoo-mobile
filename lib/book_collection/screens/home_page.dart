@@ -25,16 +25,49 @@ class _HomePageState extends State<HomePage> {
           SliverAppBar(
             pinned: true,
             stretch: true,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            expandedHeight: 200,
+            shape: const ContinuousRectangleBorder(
+                borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(480),
+                    bottomRight: Radius.circular(480))),
             onStretchTrigger: () async {
               print('Refreshed!');
             },
-            // backgroundColor: Theme.of(context).primaryColor,
-            expandedHeight: 200,
-            flexibleSpace: const Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text('Hi Sofita!'),
-                ]),
+            flexibleSpace:
+                Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+              Image(
+                image: const AssetImage('assets/logo.png'),
+                width: MediaQuery.of(context).size.width / 1.7,
+                fit: BoxFit.cover,
+              ),
+              const Text(
+                "Read More, Discover More, Be More.",
+                style: TextStyle(fontSize: 12),
+              ),
+              const SizedBox(height: 16.0),
+              const Text(
+                'Hi Sofita!',
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16.0),
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 3 / 4,
+                child: SearchBar(
+                  controller: _searchController,
+                  trailing: const [Icon(Icons.search)],
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                      const EdgeInsets.symmetric(horizontal: 16.0)),
+                  surfaceTintColor:
+                      MaterialStateProperty.all<Color>(Colors.white),
+                  hintText: 'Search by Title, Author, or ISBN',
+                  textStyle: MaterialStateProperty.all<TextStyle>(
+                      const TextStyle(fontSize: 14.0)),
+                  hintStyle: MaterialStateProperty.all<TextStyle>(
+                      const TextStyle(color: Colors.black26)),
+                ),
+              )
+            ]),
           ),
           const _HomePageBody()
         ],
