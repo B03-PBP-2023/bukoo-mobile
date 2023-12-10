@@ -1,3 +1,8 @@
+import 'package:bukoo/book_collection/models/book.dart';
+import 'package:bukoo/book_collection/screens/book_detail_page.dart';
+import 'package:bukoo/core/models/user.dart';
+import 'package:bukoo/core/screens/login_page.dart';
+import 'package:bukoo/core/screens/register_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,11 +18,21 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Provider(
-      create: (_) {
-        CookieRequest request = CookieRequest();
-        return request;
-      },
+    return MultiProvider(
+      providers: [
+        Provider<CookieRequest>(
+          create: (_) {
+            CookieRequest request = CookieRequest();
+            return request;
+          },
+        ),
+        Provider<User>(
+          create: (_) {
+            User user = User();
+            return user;
+          },
+        ),
+      ],
       child: MaterialApp(
         title: "Bukoo",
         theme: ThemeData(
@@ -29,7 +44,11 @@ class App extends StatelessWidget {
           useMaterial3: true,
         ),
         initialRoute: HomePage.routeName,
-        routes: {HomePage.routeName: (context) => HomePage()},
+        routes: {
+          HomePage.routeName: (context) => HomePage(),
+          LoginPage.routeName: (context) => LoginPage(),
+          RegisterPage.routeName: (context) => RegisterPage(),
+        },
       ),
     );
   }
