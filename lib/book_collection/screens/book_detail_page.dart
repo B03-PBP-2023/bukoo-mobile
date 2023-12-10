@@ -219,7 +219,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                                       physics:
                                           const NeverScrollableScrollPhysics(),
                                       crossAxisCount: 2,
-                                      childAspectRatio: 6,
+                                      childAspectRatio: 3,
                                       children: [
                                         Column(
                                           crossAxisAlignment:
