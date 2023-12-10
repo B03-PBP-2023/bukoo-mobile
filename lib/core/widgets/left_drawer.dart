@@ -31,6 +31,7 @@ class LeftDrawer extends StatelessWidget {
               content: Text('Logout successful!'),
             ),
           );
+          Navigator.pushNamed(context, LoginPage.routeName);
         }
       }
     }
