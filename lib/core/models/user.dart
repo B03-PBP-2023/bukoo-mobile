@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class User with ChangeNotifier {
+class User {
   String? username;
   String? email;
   bool? isAuthor;
@@ -27,7 +27,6 @@ class User with ChangeNotifier {
     email = json['email'];
     isAuthor = json['is_author'];
     isAdmin = json['is_admin'];
-    notifyListeners();
   }
 
   void resetUser() {
@@ -35,6 +34,5 @@ class User with ChangeNotifier {
     email = null;
     isAuthor = null;
     isAdmin = null;
-    notifyListeners();
   }
 }
