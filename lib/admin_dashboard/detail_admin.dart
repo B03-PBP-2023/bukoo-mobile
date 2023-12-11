@@ -69,22 +69,23 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
                 ),
               ),
               SizedBox(height: 20),
-              DropdownButton<String>(
-                value: selectedStatus,
-                items: <String>['Pending', 'Rejected', 'Verified']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedStatus =
-                        newValue ?? selectedStatus; // Mengubah status
-                  });
-                },
-              ),
+              _customDropdown(context),
+              // DropdownButton<String>(
+              //   value: selectedStatus,
+              //   items: <String>['Pending', 'Rejected', 'Verified']
+              //       .map<DropdownMenuItem<String>>((String value) {
+              //     return DropdownMenuItem<String>(
+              //       value: value,
+              //       child: Text(value),
+              //     );
+              //   }).toList(),
+              //   onChanged: (String? newValue) {
+              //     setState(() {
+              //       selectedStatus =
+              //           newValue ?? selectedStatus; // Mengubah status
+              //     });
+              //   },
+              // ),
               SizedBox(height: 10),
               TextFormField(
                 controller: _responseController,
@@ -160,24 +161,24 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
   void _showCustomDropdown(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      builder: (BuildContext bc) {
+      builder: (BuildContext context) {
         return Container(
           padding: EdgeInsets.all(10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children:
-                <String>['Pending', 'Rejected', 'Verified'].map((String value) {
-              return ListTile(
-                leading: Icon(Icons.circle, color: _getColorForStatus(value)),
-                title: Text(value),
-                onTap: () {
-                  Navigator.pop(context);
-                  setState(() {
-                    currentStatus = value;
-                  });
-                },
-              );
-            }).toList(),
+          child: Wrap(
+            children: <String>['Pending', 'Rejected', 'Verified']
+                .map((String value) => ListTile(
+                      leading:
+                          Icon(Icons.circle, color: _getColorForStatus(value)),
+                      title: Text(value),
+                      onTap: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          selectedStatus = value;
+                          currentStatus = value;
+                        });
+                      },
+                    ))
+                .toList(),
           ),
         );
       },
