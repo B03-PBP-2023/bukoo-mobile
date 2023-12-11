@@ -1,6 +1,8 @@
+import 'package:bukoo/book_collection/screens/book_detail_page.dart';
 import 'package:flutter/material.dart';
 
 class BookCard extends StatelessWidget {
+  final int bookId;
   final String title;
   final String author;
   final String imageUrl;
@@ -10,6 +12,7 @@ class BookCard extends StatelessWidget {
 
   const BookCard(
       {super.key,
+      required this.bookId,
       required this.title,
       required this.author,
       required this.imageUrl,
@@ -27,43 +30,50 @@ class BookCard extends StatelessWidget {
       return getCardWidth() / aspectRatio + 64;
     }
 
-    return Container(
-      width: width ?? getCardWidth(),
-      height: height ?? getCardHeight(),
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      child: Column(
-        children: [
-          Expanded(
-              child: Container(
-            decoration: BoxDecoration(boxShadow: [
-              BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
-                  spreadRadius: 2,
-                  blurRadius: 6,
-                  offset: const Offset(5, 5))
-            ]),
-            child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image(
-                  image: NetworkImage(imageUrl),
-                  fit: BoxFit.cover,
-                )),
-          )),
-          const SizedBox(height: 16.0),
-          Text(
-            title,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(
-            author,
-            style: const TextStyle(fontSize: 12),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          )
-        ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return BookDetailPage(bookId: bookId,);
+        }));
+      },
+      child: Container(
+        width: width ?? getCardWidth(),
+        height: height ?? getCardHeight(),
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        child: Column(
+          children: [
+            Expanded(
+                child: Container(
+              decoration: BoxDecoration(boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    spreadRadius: 2,
+                    blurRadius: 6,
+                    offset: const Offset(5, 5))
+              ]),
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image(
+                    image: NetworkImage(imageUrl),
+                    fit: BoxFit.cover,
+                  )),
+            )),
+            const SizedBox(height: 16.0),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              author,
+              style: const TextStyle(fontSize: 12),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            )
+          ],
+        ),
       ),
     );
   }

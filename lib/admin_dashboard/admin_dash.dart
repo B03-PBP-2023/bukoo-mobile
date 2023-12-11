@@ -5,6 +5,7 @@ import 'package:bukoo/core/widgets/left_drawer.dart';
 void main() => runApp(AdminDash());
 
 class AdminDash extends StatelessWidget {
+  static const routeName = '/';
   @override
   Widget build(BuildContext context) {
     return DashboardPage(); // Kembalikan langsung DashboardPage
