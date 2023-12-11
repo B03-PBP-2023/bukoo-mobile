@@ -1,6 +1,6 @@
 import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:flutter/material.dart';
-
+import 'package:bukoo/admin_dashboard/admin_dash.dart';
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
 
@@ -39,12 +39,10 @@ class LeftDrawer extends StatelessWidget {
               // TODO: Navigate to discussion forum
             },
           ),
-          ListTile(
+         ListTile(
             leading: const Icon(Icons.admin_panel_settings_outlined),
             title: const Text('Admin Dashboard'),
-            onTap: () => {
-              // TODO: Navigate to admin dashboard
-            },
+            onTap: () => Navigator.pushNamed(context, '/admin_dashboard'), // Gunakan named route
           ),
         ],
       ),

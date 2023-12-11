@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'book_collection/screens/home_page.dart';
+import 'package:bukoo/admin_dashboard/admin_dash.dart';
 
 void main() {
   runApp(const App());
@@ -29,7 +30,9 @@ class App extends StatelessWidget {
           useMaterial3: true,
         ),
         initialRoute: HomePage.routeName,
-        routes: {HomePage.routeName: (context) => HomePage()},
+        routes: {
+          HomePage.routeName: (context) => HomePage(),
+          '/admin_dashboard': (context) => AdminDash(),},
       ),
     );
   }
