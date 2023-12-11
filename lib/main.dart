@@ -48,6 +48,7 @@ class App extends StatelessWidget {
         initialRoute: HomePage.routeName,
         routes: {
           HomePage.routeName: (context) => HomePage(),
+          '/admin_dashboard': (context) => AdminDash(),
           LoginPage.routeName: (context) => LoginPage(),
           RegisterPage.routeName: (context) => RegisterPage(),
           AdminDash.routeName: (context) => AdminDash(),
