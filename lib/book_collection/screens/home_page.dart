@@ -80,7 +80,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       const Image(
                         image: AssetImage('assets/logo.png'),
-                        width: 240,
+                        width: 180,
                         fit: BoxFit.cover,
                       ),
                       const Text(
