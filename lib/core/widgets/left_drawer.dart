@@ -21,9 +21,9 @@ class LeftDrawer extends StatelessWidget {
       {
         try {
           await request.logout("$BASE_URL/auth/logout/");
-          if (request.loggedIn) {
-            throw Exception('Logout failed!');
-          }
+        } catch (e) {
+          request.loggedIn = false;
+        } finally {
           user.resetUser();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -31,12 +31,6 @@ class LeftDrawer extends StatelessWidget {
             ),
           );
           Navigator.pushNamed(context, LoginPage.routeName);
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Logout failed!'),
-            ),
-          );
         }
       }
     }
