@@ -1,3 +1,4 @@
+import 'package:bukoo/book_collection/screens/book_submission_page.dart';
 import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:bukoo/core/config.dart';
 import 'package:bukoo/core/models/user.dart';
@@ -18,14 +19,11 @@ class LeftDrawer extends StatelessWidget {
 
     void _onLogout() async {
       {
-        await request.logout("$BASE_URL/auth/logout/");
-        if (request.loggedIn) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Logout failed!'),
-            ),
-          );
-        } else {
+        try {
+          await request.logout("$BASE_URL/auth/logout/");
+          if (request.loggedIn) {
+            throw Exception('Logout failed!');
+          }
           user.resetUser();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -33,6 +31,12 @@ class LeftDrawer extends StatelessWidget {
             ),
           );
           Navigator.pushNamed(context, LoginPage.routeName);
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Logout failed!'),
+            ),
+          );
         }
       }
     }
@@ -46,7 +50,7 @@ class LeftDrawer extends StatelessWidget {
               children: [
                 Image(
                   image: AssetImage('assets/logo.png'),
-                  width: 180,
+                  width: 160,
                   fit: BoxFit.cover,
                 ),
                 Text(
@@ -71,9 +75,7 @@ class LeftDrawer extends StatelessWidget {
                 child: ListTile(
                   leading: const Icon(CustomIcon.profile),
                   title: const Text('Profile'),
-                  onTap: () => {
-                    // TODO: Navigate to profile
-                  },
+                  onTap: () => {},
                 ),
               ),
             ),
@@ -88,13 +90,27 @@ class LeftDrawer extends StatelessWidget {
               ),
             ),
             Visibility(
-              visible: request.loggedIn && user.isAdmin!,
+              visible: request.loggedIn &&
+                  (user.isAdmin == null ? false : user.isAdmin!),
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 24.0),
                 child: ListTile(
-                  leading: const Icon(CustomIcon.admin_dashboard),
-                  title: const Text('Admin Dashboard'),
-                  onTap: () => Navigator.pushNamed(context, '/admin_dashboard')
+                    leading: const Icon(CustomIcon.admin_dashboard),
+                    title: const Text('Admin Dashboard'),
+                    onTap: () =>
+                        Navigator.pushNamed(context, '/admin_dashboard')),
+              ),
+            ),
+            Visibility(
+              visible: request.loggedIn &&
+                  (user.isAuthor == null ? false : user.isAuthor!),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 24.0),
+                child: ListTile(
+                  leading: const Icon(Icons.archive_outlined),
+                  title: const Text('Book Submission'),
+                  onTap: () => {
+                    Navigator.pushNamed(context, BookSubmissionPage.routeName)
                   },
                 ),
               ),
