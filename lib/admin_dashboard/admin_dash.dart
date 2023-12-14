@@ -42,8 +42,6 @@ class DashboardPage extends StatelessWidget {
           columns: const [
             DataColumn(label: Text('Nomor')),
             DataColumn(label: Text('Judul Buku')),
-            DataColumn(label: Text('Penerbit')),
-            DataColumn(label: Text('Genre')),
             DataColumn(label: Text('Detail')),
             DataColumn(label: Text('Status')),
           ],
@@ -51,8 +49,6 @@ class DashboardPage extends StatelessWidget {
               .map((book) => DataRow(cells: [
                     DataCell(Text(book.number.toString())),
                     DataCell(Text(book.title)),
-                    DataCell(Text(book.publisher)),
-                    DataCell(Text(book.genre)),
                     DataCell(Column(
                       mainAxisAlignment: MainAxisAlignment
                           .center, // Menyelaraskan secara vertikal

@@ -91,11 +91,10 @@ class LeftDrawer extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 24.0),
                 child: ListTile(
-                  leading: const Icon(CustomIcon.admin_dashboard),
-                  title: const Text('Admin Dashboard'),
-                  onTap: () => Navigator.pushNamed(context, '/admin_dashboard')
-                  },
-                ),
+                    leading: const Icon(CustomIcon.admin_dashboard),
+                    title: const Text('Admin Dashboard'),
+                    onTap: () =>
+                        Navigator.pushNamed(context, '/admin_dashboard')),
               ),
             ),
             Visibility(
