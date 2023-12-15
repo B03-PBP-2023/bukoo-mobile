@@ -1,12 +1,10 @@
-import 'package:bukoo/book_collection/models/genre.dart';
-
 class Book {
   final int? id;
   final String? title;
   final String? imageUrl;
   final List<String>? authors;
   final String? description;
-  final List<Genre>? genres;
+  final List<String>? genres;
   final String? publisher;
   final String? publishDate;
   final int? numPages;
@@ -37,7 +35,7 @@ class Book {
           .toList(),
       description: json['fields']['description'],
       genres: json['fields']['genres']
-          .map<Genre>((genre) => Genre.fromJson(genre))
+          .map<String>((genre) => genre['name'] as String)
           .toList(),
       publisher: json['fields']['publisher'],
       publishDate: json['fields']['publish_date'],
