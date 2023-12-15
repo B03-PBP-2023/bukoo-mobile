@@ -1,6 +1,10 @@
+import 'package:bukoo/book_collection/screens/home_page.dart';
+import 'package:bukoo/book_collection/widgets/custom_autocomplete_text_field.dart';
 import 'package:bukoo/core/config.dart';
+import 'package:bukoo/core/models/user.dart';
 import 'package:bukoo/core/widgets/custom_text_field.dart';
 import 'package:bukoo/core/widgets/left_drawer.dart';
+import 'package:bukoo/core/widgets/loading_layer.dart';
 import 'package:bukoo/core/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +13,8 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class BookSubmissionPage extends StatefulWidget {
   BookSubmissionPage({super.key});
@@ -21,12 +27,13 @@ class BookSubmissionPage extends StatefulWidget {
 
 class _BookSubmissionPageState extends State<BookSubmissionPage> {
   static const HEIGHT_ON_TOP = 100.0;
+  bool isLoading = false;
 
   final _formKey = GlobalKey<FormState>();
-  final GlobalKey<AutoCompleteTextFieldState<String>> _autoCompleteKey =
-      GlobalKey();
+  final _genreAutoCompleteKey = GlobalKey<AutoCompleteTextFieldState<String>>();
+  final _authorAutoCompleteKey =
+      GlobalKey<AutoCompleteTextFieldState<String>>();
   final TextEditingController _title = TextEditingController();
-  final TextEditingController _author = TextEditingController();
   final TextEditingController _publisher = TextEditingController();
   final TextEditingController _isbn = TextEditingController();
   final TextEditingController _language = TextEditingController();
@@ -34,7 +41,15 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
   final TextEditingController _publishDate = TextEditingController();
   final TextEditingController _description = TextEditingController();
   final List<String> _selectedGenres = [];
+  final List<String> _selectedAuthors = [];
   File? _imageFile;
+
+  // init state
+  @override
+  void initState() {
+    super.initState();
+    _selectedAuthors.add(context.read<User>().name!);
+  }
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -54,6 +69,63 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
     Future<List<String>> getGenres() async {
       final response = await request.get("$BASE_URL/api/genre/");
       return response.cast<String>();
+    }
+
+    Future<List<String>> getAuthors() async {
+      final response = await request.get("$BASE_URL/api/author/");
+      return response.cast<String>();
+    }
+
+    void onSubmit() async {
+      setState(() {
+        isLoading = true;
+      });
+      if (_formKey.currentState!.validate()) {
+        var request = http.MultipartRequest(
+            'POST', Uri.parse("$BASE_URL/api/book/create/"));
+
+        // Add headers
+        var cookieRequest = Provider.of<CookieRequest>(context, listen: false);
+
+        cookieRequest.init();
+        request.headers.addAll(cookieRequest.headers);
+
+        request.fields['title'] = _title.text;
+        request.fields['author'] = jsonEncode(_selectedAuthors);
+        request.fields['publisher'] = _publisher.text;
+        request.fields['publish_date'] = _publishDate.text;
+        request.fields['num_pages'] = _numPages.text;
+        request.fields['isbn'] = _isbn.text;
+        request.fields['language'] = _language.text;
+        request.fields['genres'] = _selectedGenres.join(',');
+        request.fields['description'] = _description.text;
+
+        if (_imageFile != null) {
+          request.files.add(await http.MultipartFile.fromPath(
+            'image',
+            _imageFile!.path,
+          ));
+        }
+
+        var response = await request.send();
+        if (response.statusCode == 201) {
+          Navigator.pushReplacementNamed(context, HomePage.routeName);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Book submission success!'),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Book submission failed!'),
+            ),
+          );
+        }
+      }
+      setState(() {
+        isLoading = false;
+      });
     }
 
     return Scaffold(
@@ -108,11 +180,29 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
                               hintText: 'Book\'s title...',
                             ),
                             const SizedBox(height: 16.0),
-                            CustomTextField(
-                              controller: _author,
-                              labelText: 'Author',
-                              hintText: 'Book\'s author...',
-                            ),
+                            CustomAutoCompleteTextField(
+                                autoCompleteKey: _authorAutoCompleteKey,
+                                selectedItems: _selectedAuthors,
+                                future: getAuthors,
+                                label: 'Author',
+                                hintText: 'Add more authors...',
+                                addItem: (String item) {
+                                  setState(() {
+                                    _selectedAuthors.add(item);
+                                  });
+                                },
+                                removeItem: (String item) {
+                                  setState(() {
+                                    if (item != context.read<User>().name!) {
+                                      _selectedAuthors.remove(item);
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(
+                                              content: Text(
+                                                  'You cannot remove yourself as an author')));
+                                    }
+                                  });
+                                }),
                             const SizedBox(height: 16.0),
                             CustomTextField(
                               controller: _publisher,
@@ -155,9 +245,6 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
                                       Icons.calendar_month_outlined)),
                             ),
                             const SizedBox(height: 16.0),
-                            // Genre
-
-                            const SizedBox(height: 16.0),
                             CustomTextField(
                               controller: _numPages,
                               labelText: 'Number of Pages',
@@ -185,75 +272,22 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
                               hintText: 'Book\'s language...',
                             ),
                             const SizedBox(height: 16.0),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Genres',
-                                    style: TextStyle(
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.w500)),
-                                FutureBuilder(
-                                  future: getGenres(),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData) {
-                                      return AutoCompleteTextField<String>(
-                                        key: _autoCompleteKey,
-                                        suggestions: snapshot.data!,
-                                        minLength: 0,
-                                        decoration: CustomTextField
-                                            .inputDecoration
-                                            .copyWith(
-                                                hintText: 'Book\'s genres...'),
-                                        itemFilter: (item, query) {
-                                          return item
-                                              .toLowerCase()
-                                              .startsWith(query.toLowerCase());
-                                        },
-                                        itemSorter: (a, b) {
-                                          return a.compareTo(b);
-                                        },
-                                        itemSubmitted: (item) {
-                                          setState(() {
-                                            _selectedGenres.add(item);
-                                          });
-                                        },
-                                        itemBuilder: (context, item) {
-                                          return Container(
-                                            padding: const EdgeInsets.all(20.0),
-                                            child: Row(
-                                              children: [
-                                                Text(item),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    } else if (snapshot.hasError) {
-                                      return Text(
-                                          'Failed to load genres: ${snapshot.error}');
-                                    } else {
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    }
-                                  },
-                                ),
-                                Wrap(
-                                  spacing: 5.0,
-                                  runSpacing: 5.0,
-                                  children: _selectedGenres.map((String genre) {
-                                    return Chip(
-                                      label: Text(genre),
-                                      onDeleted: () {
-                                        setState(() {
-                                          _selectedGenres.remove(genre);
-                                        });
-                                      },
-                                    );
-                                  }).toList(),
-                                ),
-                              ],
-                            ),
+                            CustomAutoCompleteTextField(
+                                autoCompleteKey: _genreAutoCompleteKey,
+                                selectedItems: _selectedGenres,
+                                future: getGenres,
+                                label: 'Genre',
+                                hintText: 'Book\'s genres...',
+                                addItem: (String item) {
+                                  setState(() {
+                                    _selectedGenres.add(item);
+                                  });
+                                },
+                                removeItem: (String item) {
+                                  setState(() {
+                                    _selectedGenres.remove(item);
+                                  });
+                                }),
                             const SizedBox(height: 16.0),
                             CustomTextField(
                                 controller: _description,
@@ -324,13 +358,7 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
 
                             const SizedBox(height: 32.0),
                             PrimaryButton(
-                                onPressed: () {
-                                  if (_formKey.currentState!.validate()) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                            content: Text('Processing Data')));
-                                  }
-                                },
+                                onPressed: onSubmit,
                                 child: const Text('Submit')),
                           ]),
                     ),
@@ -338,6 +366,7 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
                 ),
               ],
             ),
+            LoadingLayer(isLoading: isLoading)
           ],
         ));
   }
