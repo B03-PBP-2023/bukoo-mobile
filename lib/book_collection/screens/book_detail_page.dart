@@ -177,7 +177,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                                                       padding:
                                                           const EdgeInsets.all(
                                                               0),
-                                                      label: Text(genre.name!,
+                                                      label: Text(genre,
                                                           style:
                                                               Theme.of(context)
                                                                   .textTheme
@@ -355,7 +355,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
               );
             } else if (snapshot.hasError) {
               return Center(
-                child: Text('${snapshot.error}'),
+                child: Text('ERROR: ${snapshot.error}'),
               );
             } else {
               return const Center(
