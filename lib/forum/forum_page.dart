@@ -4,6 +4,7 @@ import 'package:bukoo/forum/models/forum_model.dart';
 import 'package:bukoo/forum/detail_forum.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'dart:convert';
 
 class ForumPage extends StatefulWidget {
   const ForumPage({Key? key}) : super(key: key);
@@ -13,18 +14,19 @@ class ForumPage extends StatefulWidget {
 }
 
 class _ForumPageState extends State<ForumPage> {
-  Future<List<Product>> fetchProduct(request) async {
-    var response = await request.get('http://127.0.0.1:8000/api/forum/get-forum/<int:id>/');
+  Future<List<Forum>> fetchProduct(request) async {
+    var response = await request
+        .get('http://127.0.0.1:8000/api/forum/get-forum/<int:id>/');
     var data = json.decode(response.body);
 
-    // Melakukan konversi data json menjadi object Product
-    List<Product> listProduct = [];
+    // Melakukan konversi data json menjadi object Forum
+    List<Forum> listForums = [];
     for (var d in data) {
       if (d != null) {
-        listProduct.add(Product.fromJson(d));
+        listForums.add(Forum.fromJson(d));
       }
     }
-    return listProduct;
+    return listForums;
   }
 
   @override
@@ -42,7 +44,7 @@ class _ForumPageState extends State<ForumPage> {
       drawer: const LeftDrawer(),
       body: FutureBuilder(
         future: fetchProduct(request),
-        builder: (context, AsyncSnapshot<List<Product>> snapshot) {
+        builder: (context, AsyncSnapshot<List<Forum>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else {
@@ -80,7 +82,7 @@ class _ForumPageState extends State<ForumPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "${snapshot.data![index].subject}",
+                            snapshot.data![index].subject,
                             style: const TextStyle(
                               fontSize: 18.0,
                               fontWeight: FontWeight.bold,

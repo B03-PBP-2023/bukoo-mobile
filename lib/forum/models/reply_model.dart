@@ -4,34 +4,33 @@
 
 import 'dart:convert';
 
-List<Product> productFromJson(String str) => List<Product>.from(json.decode(str).map((x) => Product.fromJson(x)));
+List<Reply> productFromJson(String str) =>
+    List<Reply>.from(json.decode(str).map((x) => Reply.fromJson(x)));
 
-String productToJson(List<Product> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+String productToJson(List<Reply> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
-class Product {
-    int user;
-    dynamic userName;
-    String message;
-    int pk;
+class Reply {
+  int? user;
+  String? userName;
+  String message;
+  int? pk;
 
-    Product({
-        required this.user,
-        required this.userName,
-        required this.message,
-        required this.pk,
-    });
+  Reply({
+    required this.message,
+    this.user,
+    this.userName,
+    this.pk,
+  });
 
-    factory Product.fromJson(Map<String, dynamic> json) => Product(
+  factory Reply.fromJson(Map<String, dynamic> json) => Reply(
         user: json["user"],
         userName: json["user__name"],
         message: json["message"],
         pk: json["pk"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
-        "user": user,
-        "user__name": userName,
+  Map<String, dynamic> toJson() => {
         "message": message,
-        "pk": pk,
-    };
+      };
 }
