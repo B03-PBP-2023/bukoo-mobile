@@ -4,34 +4,35 @@
 
 import 'dart:convert';
 
-List<Product> productFromJson(String str) => List<Product>.from(json.decode(str).map((x) => Product.fromJson(x)));
+import 'package:bukoo/forum/models/user_model.dart';
 
-String productToJson(List<Product> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+List<Reply> productFromJson(String str) =>
+    List<Reply>.from(json.decode(str).map((x) => Reply.fromJson(x)));
 
-class Product {
-    int user;
-    dynamic userName;
-    String message;
-    int pk;
+String productToJson(List<Reply> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
-    Product({
-        required this.user,
-        required this.userName,
-        required this.message,
-        required this.pk,
-    });
+class Reply {
+  UserForum? user;
+  String message;
+  int? id;
+  DateTime? createdAt;
 
-    factory Product.fromJson(Map<String, dynamic> json) => Product(
-        user: json["user"],
-        userName: json["user__name"],
+  Reply({
+    required this.message,
+    this.user,
+    this.id,
+    this.createdAt,
+  });
+
+  factory Reply.fromJson(Map<String, dynamic> json) => Reply(
+        user: UserForum.fromJson(json["user"]),
         message: json["message"],
-        pk: json["pk"],
-    );
+        id: json["id"],
+        createdAt: DateTime.parse(json["created_at"]),
+      );
 
-    Map<String, dynamic> toJson() => {
-        "user": user,
-        "user__name": userName,
+  Map<String, dynamic> toJson() => {
         "message": message,
-        "pk": pk,
-    };
+      };
 }
