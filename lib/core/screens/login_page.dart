@@ -1,15 +1,17 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:bukoo/core/config.dart';
 import 'package:bukoo/core/models/user.dart';
 import 'package:bukoo/core/screens/register_page.dart';
 import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:bukoo/core/widgets/loading_layer.dart';
-import 'package:flutter/material.dart';
 import 'package:bukoo/core/widgets/custom_text_field.dart';
 import 'package:bukoo/core/widgets/primary_button.dart';
 import 'package:bukoo/core/etc/custom_icon_icons.dart';
-import 'package:pbp_django_auth/pbp_django_auth.dart';
-import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -47,6 +49,12 @@ class _LoginPageState extends State<LoginPage> {
         if (response['status'] == 'success') {
           // Set user (immutable)
           context.read<User>().setUser(response['data']);
+
+          // Store user data in shared preferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          String userJson = jsonEncode(response['data']);
+          await prefs.setString('user', userJson);
+
           Navigator.pushReplacementNamed(context, HomePage.routeName);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

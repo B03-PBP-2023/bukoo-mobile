@@ -24,6 +24,7 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       appBar: AppBar(
         title: Text('Detail Buku'),

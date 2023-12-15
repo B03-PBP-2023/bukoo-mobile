@@ -1,18 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:bukoo/admin_dashboard/detail_admin.dart';
 import 'package:bukoo/core/widgets/left_drawer.dart';
+import 'package:provider/provider.dart';
 
 void main() => runApp(AdminDash());
 
-class AdminDash extends StatelessWidget {
-  static const routeName = '/';
+class AdminDash extends StatefulWidget {
+  AdminDash({super.key});
+  static const routeName = '/admin-dash';
+
   @override
-  Widget build(BuildContext context) {
-    return DashboardPage(); // Kembalikan langsung DashboardPage
+  State<AdminDash> createState() => _DashboardPage();
+  // static const routeName = '/';
+  // @override
+  // Widget build(BuildContext context) {
+  //   return DashboardPage(); // Kembalikan langsung DashboardPage
+  // }
+}
+
+class BookProvider extends ChangeNotifier {
+  List<Book> _books = [];
+
+  List<Book> get books => _books;
+
+  void addBook(Book book) {
+    _books.add(book);
+    notifyListeners();
+  }
+
+  void updateBook(Book book) {
+    int index = _books.indexWhere((b) => b.isbn == book.isbn);
+    if (index != -1) {
+      _books[index] = book;
+      notifyListeners();
+    }
   }
 }
 
-class DashboardPage extends StatelessWidget {
+
+class _DashboardPage extends State<AdminDash>{
   final List<Book> books = [
     Book(
       number: 1,
@@ -31,6 +57,10 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    bool isLargeScreen = screenWidth > 600; // contoh breakpoint
+    List<Book> books = Provider.of<BookProvider>(context).books;
+    
     return Scaffold(
       appBar: AppBar(
         title: Text('Admin Dashboard'),
