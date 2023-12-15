@@ -6,6 +6,7 @@ import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:bukoo/core/widgets/loading_layer.dart';
 import 'package:bukoo/core/widgets/primary_button.dart';
 import 'package:bukoo/core/widgets/secondary_button.dart';
+import 'package:bukoo/forum/add_forum.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -139,7 +140,16 @@ class _BookDetailPageState extends State<BookDetailPage> {
                                               )),
                                           const SizedBox(height: 16),
                                           PrimaryButton(
-                                              onPressed: () {},
+                                              onPressed: () {
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ForumFormPage(
+                                                                bookId: snapshot
+                                                                    .data!
+                                                                    .id!)));
+                                              },
                                               child: const Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.center,
