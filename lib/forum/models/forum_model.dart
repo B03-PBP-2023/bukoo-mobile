@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:bukoo/forum/models/user_model.dart';
+
 List<Forum> productFromJson(String str) =>
     List<Forum>.from(json.decode(str).map((x) => Forum.fromJson(x)));
 
@@ -11,29 +13,29 @@ String productToJson(List<Forum> data) =>
     json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class Forum {
-  int? pk;
-  int? user;
-  String? userName;
+  int? id;
+  UserForum? user;
   DateTime? dateAdded;
   String subject;
   String description;
+  int? totalReply;
 
   Forum({
     required this.subject,
     required this.description,
-    this.pk,
+    this.id,
     this.user,
-    this.userName,
     this.dateAdded,
+    this.totalReply,
   });
 
   factory Forum.fromJson(Map<String, dynamic> json) => Forum(
-        user: json["user"],
-        userName: json["user__name"],
+        user: UserForum.fromJson(json["user"]),
         dateAdded: DateTime.parse(json["date_added"]),
         subject: json["subject"],
         description: json["description"],
-        pk: json["pk"],
+        id: json["id"],
+        totalReply: json["total_reply"],
       );
 
   Map<String, dynamic> toJson() => {

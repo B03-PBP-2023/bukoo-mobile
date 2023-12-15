@@ -1,3 +1,4 @@
+import 'package:bukoo/core/config.dart';
 import 'package:flutter/material.dart';
 import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -107,7 +108,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
                         // Anda dapat menggunakan kode berikut sebagai contoh:
 
                         final response = await request.postJson(
-                            "http://127.0.0.1:8000/api/forum/create-forum-ajax/${widget.bookId}/",
+                            "$BASE_URL/api/forum/create-forum-ajax/${widget.bookId}/",
                             jsonEncode(forumPost.toJson()));
                         if (response['status'] == 'success') {
                           print(response['status']);

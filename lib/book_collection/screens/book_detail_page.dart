@@ -6,6 +6,8 @@ import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:bukoo/core/widgets/loading_layer.dart';
 import 'package:bukoo/core/widgets/primary_button.dart';
 import 'package:bukoo/core/widgets/secondary_button.dart';
+import 'package:bukoo/forum/add_forum.dart';
+import 'package:bukoo/forum/forum_page.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -46,6 +48,11 @@ class _BookDetailPageState extends State<BookDetailPage> {
       final response =
           await request.get("$BASE_URL/api/book/${widget.bookId}/");
       return Book.fromJsonDetail(response);
+    }
+
+    void onClickDiscussion(int bookId) {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => ForumPage(bookId: bookId)));
     }
 
     return Scaffold(
@@ -139,7 +146,10 @@ class _BookDetailPageState extends State<BookDetailPage> {
                                               )),
                                           const SizedBox(height: 16),
                                           PrimaryButton(
-                                              onPressed: () {},
+                                              onPressed: () {
+                                                onClickDiscussion(
+                                                    snapshot.data!.id!);
+                                              },
                                               child: const Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.center,

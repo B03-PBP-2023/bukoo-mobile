@@ -3,6 +3,8 @@ import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:bukoo/core/config.dart';
 import 'package:bukoo/core/models/user.dart';
 import 'package:bukoo/core/screens/login_page.dart';
+import 'package:bukoo/forum/add_forum.dart';
+import 'package:bukoo/forum/forum_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bukoo/admin_dashboard/admin_dash.dart';
 import 'package:bukoo/core/etc/custom_icon_icons.dart';
@@ -79,7 +81,9 @@ class LeftDrawer extends StatelessWidget {
                 leading: const Icon(CustomIcon.discussion),
                 title: const Text('Discussion Forum'),
                 onTap: () => {
-                  // TODO: Navigate to discussion forum
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return ForumFormPage(bookId: 1,);
+                  }))
                 },
               ),
             ),
