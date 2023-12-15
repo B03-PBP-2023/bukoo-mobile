@@ -288,20 +288,53 @@ class _ForumFormPageState extends State<ForumFormPage> {
                                             mainAxisAlignment: MainAxisAlignment.start,
                                             crossAxisAlignment: CrossAxisAlignment.center,
                                             children: [
-                                              Expanded(
-                                                child: SizedBox(
-                                                  child: Text(
-                                                    'write here ...',
-                                                    style: TextStyle(
-                                                      color: Color(0xFFADC4CE),
-                                                      fontSize: 16,
-                                                      fontFamily: 'Inter',
-                                                      fontWeight: FontWeight.w400,
-                                                      height: 0.09,
+                                                TextFormField(
+                                                    decoration: InputDecoration(
+                                                    hintText: "Write your reply here ...",
+                                                    labelText: "Write your reply here ...",
+                                                    border: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.circular(8),
                                                     ),
-                                                  ),
+                                                    ),
+                                                    onChanged: (String value) {
+                                                    setState(() {
+                                                        _reply = value;
+                                                    });
+                                                    },
+                                                    validator: (String? value) {
+                                                    if (value == null || value.isEmpty) {
+                                                        return "Field tidak boleh kosong!";
+                                                    }
+                                                    return null;
+                                                    },
                                                 ),
-                                              ),
+                                                
+                                                // Tombol untuk mengirim balasan
+                                                ElevatedButton(
+                                                    onPressed: () async {
+                                                    if (_formKey.currentState!.validate()) {
+                                                        final response = await sendReply(); // Panggil fungsi sendReply
+
+                                                        if (response == 'success') {
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                            const SnackBar(
+                                                            content: Text("Reply has been sent!"),
+                                                            ),
+                                                        );
+                                                        } else {
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                            const SnackBar(
+                                                            content: Text("ERROR, please try again!"),
+                                                            ),
+                                                        );
+                                                        }
+                                                    }
+                                                    },
+                                                    child: const Text(
+                                                    "Send Reply",
+                                                    style: TextStyle(color: Colors.white),
+                                                    ),
+                                                ),
                                             ],
                                           ),
                                         ),
@@ -388,11 +421,34 @@ class _ForumFormPageState extends State<ForumFormPage> {
        } else {
          return 'error';
        }
-      return 'success'; // Gantilah dengan logika pengiriman data sesuai kebutuhan Anda.
+      return 'success'; 
+    } catch (e) {
+      return 'error';
+    }
+  }
+
+  // Fungsi untuk mengirim balasan (reply) ke server
+  Future<String> sendReply() async {
+    try {
+      // Kirim data balasan (reply) ke server
+      final response = await request.postJson(
+        "http://127.0.0.1:8000/create-forum-flutter/", 
+        jsonEncode({
+          'reply': _reply,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return 'success';
+      } else {
+        return 'error';
+      }
     } catch (e) {
       return 'error';
     }
   }
 }
+
+
 
 
