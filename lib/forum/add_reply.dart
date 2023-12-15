@@ -116,7 +116,7 @@ class _ReplyFormPageState extends State<ReplyFormPage> {
                           ));
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => MyHomePage()),
+                            MaterialPageRoute(builder: (context) => HomePage()),
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

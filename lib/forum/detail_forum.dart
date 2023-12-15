@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:bukoo/forum/models/forum_model.dart';
 
 class DetailForumPage extends StatelessWidget {
-  final Product item;
+  final Forum item;
 
   DetailForumPage({required this.item});
 

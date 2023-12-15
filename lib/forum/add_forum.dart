@@ -7,7 +7,8 @@ import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:bukoo/forum/models/forum_model.dart';
 
 class ForumFormPage extends StatefulWidget {
-  const ForumFormPage({Key? key}) : super(key: key);
+  int bookId;
+  ForumFormPage({Key? key, required this.bookId}) : super(key: key);
 
   @override
   State<ForumFormPage> createState() => _ForumFormPageState();
@@ -20,10 +21,11 @@ class _ForumFormPageState extends State<ForumFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Scaffold(
       appBar: AppBar(
         title: const Center(
-          child: const Text(
+          child: Text(
             'Create Forum Post',
             style: TextStyle(color: Colors.white),
           ),
@@ -90,13 +92,12 @@ class _ForumFormPageState extends State<ForumFormPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all(Colors.purple),
+                      backgroundColor: MaterialStateProperty.all(Colors.purple),
                     ),
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         // Kirim data forum ke server atau penyimpanan
-                        final forumPost = ForumPost(
+                        final forumPost = Forum(
                           // Ganti ini dengan cara yang sesuai untuk membuat forum post
                           subject: _subject,
                           description: _description,
@@ -105,24 +106,24 @@ class _ForumFormPageState extends State<ForumFormPage> {
                         // Selanjutnya, Anda dapat mengirim forumPost ke server atau menyimpannya.
                         // Anda dapat menggunakan kode berikut sebagai contoh:
 
-                         final response = await request.postJson(
-                             "http://127.0.0.1:8000/create-forum-flutter/",
-                             jsonEncode(forumPost.toJson()));
-                        //tambah apaan??
-                         if (response['status'] == 'success') {
-                           print(response['status']);
-                           ScaffoldMessenger.of(context).showSnackBar(
-                             const SnackBar(
-                               content: Text("Forum post has been created!"),
-                             ),
-                           );
-                         } else {
-                           ScaffoldMessenger.of(context).showSnackBar(
-                             const SnackBar(
-                               content: Text("ERROR, please try again!"),
-                             ),
-                           );
-                         }
+                        final response = await request.postJson(
+                            "http://127.0.0.1:8000/api/forum/create-forum-ajax/${widget.bookId}/",
+                            jsonEncode(forumPost.toJson()));
+                        if (response['status'] == 'success') {
+                          print(response['status']);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Forum post has been created!"),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  "ERROR, please try again!. Error: ${response['message']}"),
+                            ),
+                          );
+                        }
                       }
                     },
                     child: const Text(
@@ -139,5 +140,3 @@ class _ForumFormPageState extends State<ForumFormPage> {
     );
   }
 }
-
-

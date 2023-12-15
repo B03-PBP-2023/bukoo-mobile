@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:bukoo/forum/models/reply_model.dart';
 
 class DetailReplyPage extends StatelessWidget {
-  final Product item;
+  final Reply item;
 
-  DetailReplyPage({required this.item});
+  const DetailReplyPage({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          item.subject, // Menggunakan subject dari model Product
+          item.message, // Menggunakan subject dari model Product
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.purple,
@@ -23,14 +23,17 @@ class DetailReplyPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              item.subject, // Menggunakan subject dari model Product
-              style: Theme.of(context).textTheme.headline6, // Menggunakan gaya teks yang sesuai
+              item.message, // Menggunakan subject dari model Product
+              style: Theme.of(context)
+                  .textTheme
+                  .headline6, // Menggunakan gaya teks yang sesuai
             ),
 
             const SizedBox(height: 10),
             Text("User : ${item.userName}"),
             const SizedBox(height: 10),
-            Text("Message : ${item.message}"), // Menggunakan message dari model Product
+            Text(
+                "Message : ${item.message}"), // Menggunakan message dari model Product
             const SizedBox(height: 10),
             Text("PK : ${item.pk}"), // Menggunakan pk dari model Product
           ],

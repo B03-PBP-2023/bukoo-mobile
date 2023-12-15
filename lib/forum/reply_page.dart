@@ -4,6 +4,7 @@ import 'package:bukoo/forum/models/reply_model.dart';
 import 'package:bukoo/forum/detail_reply.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'dart:convert';
 
 class ReplyPage extends StatefulWidget {
   const ReplyPage({Key? key}) : super(key: key);
@@ -13,15 +14,16 @@ class ReplyPage extends StatefulWidget {
 }
 
 class _ReplyPageState extends State<ReplyPage> {
-  Future<List<Product>> fetchProduct(request) async {
-    var response = await request.get('http://127.0.0.1:8000/api/forum/get-reply/<int:id>/');
+  Future<List<Reply>> fetchProduct(request) async {
+    var response = await request
+        .get('http://127.0.0.1:8000/api/forum/get-reply/<int:id>/');
     var data = json.decode(response.body);
 
-    // Melakukan konversi data json menjadi object Product
-    List<Product> listProduct = [];
+    // Melakukan konversi data json menjadi object Reply
+    List<Reply> listProduct = [];
     for (var d in data) {
       if (d != null) {
-        listProduct.add(Product.fromJson(d));
+        listProduct.add(Reply.fromJson(d));
       }
     }
     return listProduct;
@@ -42,7 +44,7 @@ class _ReplyPageState extends State<ReplyPage> {
       drawer: const LeftDrawer(),
       body: FutureBuilder(
         future: fetchProduct(request),
-        builder: (context, AsyncSnapshot<List<Product>> snapshot) {
+        builder: (context, AsyncSnapshot<List<Reply>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else {
@@ -80,15 +82,14 @@ class _ReplyPageState extends State<ReplyPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "${snapshot.data![index].subject}",
+                            "${snapshot.data![index].message}",
                             style: const TextStyle(
                               fontSize: 18.0,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           const SizedBox(height: 10),
-                          Text(
-                              "Message : ${snapshot.data![index].message}")
+                          Text("Message : ${snapshot.data![index].message}")
                         ],
                       ),
                     ),
