@@ -91,7 +91,21 @@ class LeftDrawer extends StatelessWidget {
                     leading: const Icon(CustomIcon.admin_dashboard),
                     title: const Text('Admin Dashboard'),
                     onTap: () =>
-                        Navigator.pushNamed(context, '/admin-dashboard')),
+                        Navigator.pushNamed(context, '/admin_dashboard')),
+              ),
+            ),
+            Visibility(
+              visible: request.loggedIn &&
+                  (user.isAuthor == null ? false : user.isAuthor!),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 24.0),
+                child: ListTile(
+                  leading: const Icon(Icons.archive_outlined),
+                  title: const Text('Book Submission'),
+                  onTap: () => {
+                    Navigator.pushNamed(context, BookSubmissionPage.routeName)
+                  },
+                ),
               ),
             ),
             Visibility(

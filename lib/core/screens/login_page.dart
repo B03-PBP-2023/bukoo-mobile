@@ -35,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
 
-    void _onLogin() async {
+    void onLogin() async {
       setState(() {
         _errorText = null;
         _isLoading = true;
@@ -130,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(height: 24.0),
                           PrimaryButton(
-                              onPressed: _onLogin, child: const Text('Login')),
+                              onPressed: onLogin, child: const Text('Login')),
                           const SizedBox(height: 24.0),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,

@@ -1,4 +1,5 @@
 import 'package:bukoo/book_collection/screens/book_submission_page.dart';
+import 'package:bukoo/book_collection/screens/search_page.dart';
 import 'package:bukoo/core/models/user.dart';
 import 'package:bukoo/core/screens/login_page.dart';
 import 'package:bukoo/core/screens/register_page.dart';
@@ -67,6 +68,7 @@ class App extends StatelessWidget {
           RegisterPage.routeName: (context) => RegisterPage(),
           AdminDash.routeName: (context) => AdminDash(),
           BookSubmissionPage.routeName: (context) => BookSubmissionPage(),
+          SearchPage.routeName: (context) => SearchPage(),
         },
       ),
     );
