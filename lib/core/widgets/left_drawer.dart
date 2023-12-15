@@ -3,6 +3,7 @@ import 'package:bukoo/core/config.dart';
 import 'package:bukoo/core/models/user.dart';
 import 'package:bukoo/core/screens/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:bukoo/admin_dashboard/admin_dash.dart';
 import 'package:bukoo/core/etc/custom_icon_icons.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -87,15 +88,14 @@ class LeftDrawer extends StatelessWidget {
               ),
             ),
             Visibility(
-              visible: request.loggedIn && user.isAdmin!,
+              visible: request.loggedIn && user.isAdmin == true,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 24.0),
                 child: ListTile(
                   leading: const Icon(CustomIcon.admin_dashboard),
                   title: const Text('Admin Dashboard'),
-                  onTap: () => {
-                    // TODO: Navigate to admin dashboard
-                  },
+                  onTap: () =>
+                      {Navigator.pushNamed(context, '/admin_dashboard')},
                 ),
               ),
             ),
