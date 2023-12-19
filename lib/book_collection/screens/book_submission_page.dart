@@ -2,6 +2,8 @@ import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:bukoo/book_collection/widgets/custom_autocomplete_text_field.dart';
 import 'package:bukoo/core/config.dart';
 import 'package:bukoo/core/models/user.dart';
+import 'package:bukoo/core/utils/get_cookie.dart';
+import 'package:bukoo/core/utils/get_cookie_web.dart';
 import 'package:bukoo/core/widgets/custom_text_field.dart';
 import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:bukoo/core/widgets/loading_layer.dart';
@@ -15,6 +17,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class BookSubmissionPage extends StatefulWidget {
   BookSubmissionPage({super.key});
@@ -30,9 +33,6 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
   bool isLoading = false;
 
   final _formKey = GlobalKey<FormState>();
-  final _genreAutoCompleteKey = GlobalKey<AutoCompleteTextFieldState<String>>();
-  final _authorAutoCompleteKey =
-      GlobalKey<AutoCompleteTextFieldState<String>>();
   final TextEditingController _title = TextEditingController();
   final TextEditingController _publisher = TextEditingController();
   final TextEditingController _isbn = TextEditingController();
@@ -65,6 +65,16 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
+    final user = context.watch<User>();
+
+    if (!request.loggedIn) {
+      Navigator.pushReplacementNamed(context, HomePage.routeName);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('You must be logged in to submit a book!'),
+        ),
+      );
+    }
 
     Future<List<String>> getGenres() async {
       final response = await request.get("$BASE_URL/api/genre/");
@@ -87,8 +97,14 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
         // Add headers
         var cookieRequest = Provider.of<CookieRequest>(context, listen: false);
 
-        cookieRequest.init();
+        await cookieRequest.init();
         request.headers.addAll(cookieRequest.headers);
+
+        // if (kIsWeb) {
+        //   var cookie =
+        //       'csrftoken=${getCookie('csrftoken')};sessionid=${getCookie('sessionid')}';
+        //   request.headers.addAll({'cookie': cookie});
+        // }
 
         request.fields['title'] = _title.text;
         request.fields['author'] = jsonEncode(_selectedAuthors);
@@ -116,9 +132,10 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
             ),
           );
         } else {
+          String body = await response.stream.bytesToString();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Book submission failed!'),
+            SnackBar(
+              content: Text('Book submission failed!. Error: $body'),
             ),
           );
         }
@@ -181,7 +198,6 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
                             ),
                             const SizedBox(height: 16.0),
                             CustomAutoCompleteTextField(
-                                autoCompleteKey: _authorAutoCompleteKey,
                                 selectedItems: _selectedAuthors,
                                 future: getAuthors,
                                 label: 'Author',
@@ -273,12 +289,12 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
                             ),
                             const SizedBox(height: 16.0),
                             CustomAutoCompleteTextField(
-                                autoCompleteKey: _genreAutoCompleteKey,
                                 selectedItems: _selectedGenres,
                                 future: getGenres,
                                 label: 'Genre',
                                 hintText: 'Book\'s genres...',
                                 addItem: (String item) {
+                                  print('addItem called with: $item');
                                   setState(() {
                                     _selectedGenres.add(item);
                                   });

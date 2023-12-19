@@ -1,15 +1,15 @@
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:bukoo/core/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 
 class CustomAutoCompleteTextField extends StatelessWidget {
-  final Future<dynamic> Function() future;
+  final Future<List<String>> Function() future;
   final Function(String) addItem;
   final Function(String) removeItem;
   final List<String> selectedItems;
   final String label;
   final String hintText;
-  final GlobalKey<AutoCompleteTextFieldState<String>> autoCompleteKey;
 
   const CustomAutoCompleteTextField(
       {super.key,
@@ -18,8 +18,7 @@ class CustomAutoCompleteTextField extends StatelessWidget {
       required this.removeItem,
       required this.label,
       required this.hintText,
-      required this.selectedItems,
-      required this.autoCompleteKey});
+      required this.selectedItems});
 
   @override
   Widget build(BuildContext context) {
@@ -29,55 +28,42 @@ class CustomAutoCompleteTextField extends StatelessWidget {
         Text(label,
             style:
                 const TextStyle(fontSize: 18.0, fontWeight: FontWeight.w500)),
-        FutureBuilder(
-          future: future(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return AutoCompleteTextField<String>(
-                key: autoCompleteKey,
-                suggestions: snapshot.data!,
-                minLength: 0,
-                suggestionsAmount: 10,
-                decoration: CustomTextField.inputDecoration.copyWith(
-                    hintText: hintText,
-                    suffixIcon: InkWell(
-                      onTap: () {
-                        String item = autoCompleteKey
-                            .currentState!.textField!.controller!.text;
-                        if (!snapshot.data!.contains(item) && item.isNotEmpty) {
-                          snapshot.data!.add(item);
-                          addItem(item);
-                        }
-                      },
-                      child: const Icon(Icons.add_circle_outline),
-                    )),
-                itemFilter: (item, query) {
-                  return item.toLowerCase().startsWith(query.toLowerCase());
-                },
-                itemSorter: (a, b) {
-                  return a.compareTo(b);
-                },
-                itemSubmitted: (item) {
-                  addItem(item);
-                },
-                itemBuilder: (context, item) {
-                  return Container(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Row(
-                      children: [
-                        Text(item),
-                      ],
-                    ),
-                  );
-                },
-              );
-            } else if (snapshot.hasError) {
-              return Text('Failed to load: ${snapshot.error}');
-            } else {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
+        TypeAheadField<String>(
+          builder: (context, controller, focusNode) {
+            return TextFormField(
+              controller: controller,
+              focusNode: focusNode,
+              decoration: CustomTextField.inputDecoration.copyWith(
+                  hintText: hintText,
+                  suffixIcon: InkWell(
+                    onTap: () {
+                      String item = controller.text;
+                      if (!selectedItems.contains(item) && item.isNotEmpty) {
+                        addItem(item);
+                      }
+                    },
+                    child: const Icon(Icons.add_circle_outline),
+                  )),
+            );
+          },
+          suggestionsCallback: (pattern) async {
+            var response = await future();
+            return response.where((item) {
+              return item.toLowerCase().contains(pattern.toLowerCase());
+            }).toList();
+          },
+          itemBuilder: (context, suggestion) {
+            return Container(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                children: [
+                  Text(suggestion),
+                ],
+              ),
+            );
+          },
+          onSelected: (suggestion) {
+            addItem(suggestion);
           },
         ),
         Wrap(
