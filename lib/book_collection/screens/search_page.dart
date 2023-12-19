@@ -17,8 +17,10 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
   final _searchBarKey = GlobalKey();
+  List<Book> books = [];
+  bool _isLoading = false;
 
-  Future<List<Book>> onSearch() async {
+  Future<List<Book>> fetchSearchData() async {
     final request = context.read<CookieRequest>();
     final query = _searchController.text;
     final response = await request.get("$BASE_URL/api/book/?keyword=$query");
@@ -26,6 +28,17 @@ class _SearchPageState extends State<SearchPage> {
         .map<Book>((book) => Book.fromJsonPreview(book))
         .toList();
     return books;
+  }
+
+  void onSubmitted(String value) async {
+    setState(() {
+      _isLoading = true;
+    });
+    final books = await fetchSearchData();
+    setState(() {
+      this.books = books;
+      _isLoading = false;
+    });
   }
 
   @override
@@ -65,7 +78,7 @@ class _SearchPageState extends State<SearchPage> {
                       Hero(
                         tag: 'searchBar',
                         child: SearchBar(
-                          onSubmitted: (value) {},
+                          onSubmitted: onSubmitted,
                           key: _searchBarKey,
                           controller: _searchController,
                           trailing: const [Icon(Icons.search)],
@@ -85,40 +98,32 @@ class _SearchPageState extends State<SearchPage> {
               ),
             ),
           ),
-          FutureBuilder(
-              future: onSearch(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  final books = snapshot.data as List<Book>;
-                  return GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, // This specifies the number of columns
-                    ),
-                    itemCount: books.length,
-                    itemBuilder: (context, index) {
-                      final book = books[index];
-                      return BookCard(
-                          bookId: book.id!,
-                          title: book.title!,
-                          author: book.authors!.join(', '),
-                          imageUrl: book.imageUrl ?? BookCoverDefault);
-                    },
-                  );
-                } else if (snapshot.hasError) {
-                  return SliverFillRemaining(
-                    child: Center(
-                      child: Text('Error: ${snapshot.error}'),
-                    ),
-                  );
-                } else {
-                  return const SliverFillRemaining(
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-              }),
+          if (_isLoading)
+            const SliverFillRemaining(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
+          // else if (books.isNotEmpty)
+          //   SliverGrid(
+          //     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          //       crossAxisCount: 2, // This specifies the number of columns
+          //     ),
+          //     delegate: SliverChildBuilderDelegate(
+          //       (BuildContext context, int index) {
+          //         final book = books[index];
+          //         return Padding(
+          //           padding: const EdgeInsets.all(8.0),
+          //           child: BookCard(
+          //               bookId: book.id!,
+          //               title: book.title!,
+          //               author: book.authors!.join(', '),
+          //               imageUrl: book.imageUrl ?? BookCoverDefault),
+          //         );
+          //       },
+          //       childCount: books.length,
+          //     ),
+          //   )
         ],
       ),
     );
