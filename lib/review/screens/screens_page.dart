@@ -38,11 +38,12 @@ class _ReviewPageState extends State<ReviewPage> {
     final response =
         await request.get('$BASE_URL/review/${widget.bookId}/get_review_json');
     if (response is Map) {
-      List<Review> reviewsList = (response['reviews'])
+      List<Review> reviewsList = (response['reviews'] as List)
+          .where((item) => item is Map<String, dynamic>)
           .map((item) => Review.fromJson(item as Map<String, dynamic>))
           .toList();
-      Review currentUserReview =
-          Review.fromJson(response['current_user_review'] as Map<String, dynamic>);
+      Review currentUserReview = Review.fromJson(
+          response['current_user_review'] as Map<String, dynamic>);
 
       return {
         'reviews': reviewsList,
@@ -130,7 +131,9 @@ class _ReviewPageState extends State<ReviewPage> {
             return const Center(child: CircularProgressIndicator());
           }
           if (reviewSnapshot.hasError) {
-            return Center(child: Text('Error: ${reviewSnapshot.error} \n\n ${reviewSnapshot.stackTrace}'));
+            return Center(
+                child: Text(
+                    'Error: ${reviewSnapshot.error} \n\n ${reviewSnapshot.stackTrace}'));
           }
           if (!reviewSnapshot.hasData || reviewSnapshot.data!.isEmpty) {
             return const Center(child: Text('No reviews available'));
@@ -139,21 +142,31 @@ class _ReviewPageState extends State<ReviewPage> {
           List<Review> reviews = reviewSnapshot.data!['reviews'];
           Review? currentUserReview = reviewSnapshot.data!['currentUserReview'];
 
-          return ListView(
-            children: [
-              if (currentUserReview != null)
-                ReviewCard(review: currentUserReview)
-              else
-                ElevatedButton(
-                  onPressed: _showAddReviewDialog,
-                  child: const Text('Add Review'),
-                ),
-              const Divider(),
-              ...reviews
-                  .where((review) => review.userName != currentUserName)
-                  .map((review) => ReviewCard(review: review))
-                  .toList(),
-            ],
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListView(
+              children: [
+                if (currentUserReview != null) ...[
+                  const Text(
+                    'Your Review',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  ReviewCard(review: currentUserReview),
+                ] else
+                  ElevatedButton(
+                    onPressed: _showAddReviewDialog,
+                    child: const Text('Add Review'),
+                  ),
+                const Divider(),
+                ...reviews
+                    .where((review) => review.userName != currentUserName)
+                    .map((review) => ReviewCard(review: review))
+                    .toList(),
+              ],
+            ),
           );
         },
       ),
