@@ -1,3 +1,4 @@
+import 'package:bukoo/core/config.dart';
 import 'package:flutter/material.dart';
 import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -8,7 +9,8 @@ import 'package:bukoo/forum/models/forum_model.dart';
 import 'package:bukoo/forum/models/reply_model.dart';
 
 class ForumFormPage extends StatefulWidget {
-  const ForumFormPage({Key? key}) : super(key: key);
+  int bookId;
+  ForumFormPage({super.key, required this.bookId});
 
   @override
   State<ForumFormPage> createState() => _ForumFormPageState();
@@ -26,7 +28,12 @@ class _ForumFormPageState extends State<ForumFormPage> {
         title: const Center(
           child: const Text(
             'Forum Discussion',
-            style: TextStyle(color: Colors.black, fontSize: 18, fontFamily: 'Poppins', fontWeight: FontWeight.w600, height: 0.07),
+            style: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+                height: 0.07),
           ),
         ),
         backgroundColor: Colors.purple,
@@ -157,12 +164,14 @@ class _ForumFormPageState extends State<ForumFormPage> {
                                 const SizedBox(height: 6),
                                 Container(
                                   width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 30, vertical: 10),
                                   clipBehavior: Clip.antiAlias,
                                   decoration: ShapeDecoration(
                                     color: Color(0xFFF2F2F2),
                                     shape: RoundedRectangleBorder(
-                                      side: BorderSide(width: 1, color: Color(0xFFCFD4DC)),
+                                      side: BorderSide(
+                                          width: 1, color: Color(0xFFCFD4DC)),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     shadows: [
@@ -177,15 +186,18 @@ class _ForumFormPageState extends State<ForumFormPage> {
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Expanded(
                                         child: Container(
                                           height: 24,
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
                                             children: [
                                               Expanded(
                                                 child: SizedBox(
@@ -195,7 +207,8 @@ class _ForumFormPageState extends State<ForumFormPage> {
                                                       color: Color(0xFFADC4CE),
                                                       fontSize: 16,
                                                       fontFamily: 'Inter',
-                                                      fontWeight: FontWeight.w400,
+                                                      fontWeight:
+                                                          FontWeight.w400,
                                                       height: 0.09,
                                                     ),
                                                   ),
@@ -258,12 +271,14 @@ class _ForumFormPageState extends State<ForumFormPage> {
                                 const SizedBox(height: 6),
                                 Container(
                                   width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 10),
                                   clipBehavior: Clip.antiAlias,
                                   decoration: ShapeDecoration(
                                     color: Color(0xFFF2F2F2),
                                     shape: RoundedRectangleBorder(
-                                      side: BorderSide(width: 1, color: Color(0xFFCFD4DC)),
+                                      side: BorderSide(
+                                          width: 1, color: Color(0xFFCFD4DC)),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     shadows: [
@@ -278,28 +293,50 @@ class _ForumFormPageState extends State<ForumFormPage> {
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Expanded(
                                         child: Container(
                                           height: 24,
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
                                             children: [
-                                              Expanded(
-                                                child: SizedBox(
-                                                  child: Text(
-                                                    'write here ...',
-                                                    style: TextStyle(
-                                                      color: Color(0xFFADC4CE),
-                                                      fontSize: 16,
-                                                      fontFamily: 'Inter',
-                                                      fontWeight: FontWeight.w400,
-                                                      height: 0.09,
-                                                    ),
+                                              TextFormField(
+                                                decoration: InputDecoration(
+                                                  hintText:
+                                                      "Write your reply here ...",
+                                                  labelText:
+                                                      "Write your reply here ...",
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
                                                   ),
+                                                ),
+                                                onChanged: (String value) {
+                                                  setState(() {});
+                                                },
+                                                validator: (String? value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return "Field tidak boleh kosong!";
+                                                  }
+                                                  return null;
+                                                },
+                                              ),
+
+                                              // Tombol untuk mengirim balasan
+                                              ElevatedButton(
+                                                onPressed: () async {},
+                                                child: const Text(
+                                                  "Send Reply",
+                                                  style: TextStyle(
+                                                      color: Colors.white),
                                                 ),
                                               ),
                                             ],
@@ -337,7 +374,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 // Validasi sukses, lakukan operasi async di sini
-                final response = await ForumPost(); 
+                final response = await postForum();
                 if (response == 'success') {
                   // Tampilkan pesan sukses
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -374,25 +411,17 @@ class _ForumFormPageState extends State<ForumFormPage> {
   }
 
   // Fungsi untuk mengirim forum post ke server
-  Future<String> ForumPost() async {
+  Future<String> postForum() async {
+    final request = Provider.of<CookieRequest>(context, listen: false);
+
     try {
       // Kirim data forum ke server atau penyimpanan di sini
-       final response = await request.postJson(
-                              "http://127.0.0.1:8000/create-forum-flutter/",
-                              jsonEncode(forumPost.toJson()));
-
-        //ini diisi apaan??????????????????????????????????????????????????????????????????????
-
-       if (response.statusCode == 200) {
-         return 'success';
-       } else {
-         return 'error';
-       }
-      return 'success'; // Gantilah dengan logika pengiriman data sesuai kebutuhan Anda.
+      final forum = Forum(subject: _subject, description: _description);
+      final response = await request.postJson(
+          "$BASE_URL/create-forum-flutter/", jsonEncode(forum.toJson()));
+      return response['status'];
     } catch (e) {
       return 'error';
     }
   }
 }
-
-
