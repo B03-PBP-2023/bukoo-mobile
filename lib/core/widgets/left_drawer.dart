@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:bukoo/core/etc/custom_icon_icons.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:bukoo/user_profile/screens/reader_profile.dart';
+import 'package:bukoo/user_profile/screens/author_profile.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
