@@ -37,13 +37,16 @@ class _ReviewPageState extends State<ReviewPage> {
     final request = context.watch<CookieRequest>();
     final response =
         await request.get('$BASE_URL/review/${widget.bookId}/get_review_json');
-    if (response is Map) {
-      List<Review> reviewsList = (response['reviews'] as List)
+    final data = response['data'];
+    if (response['status'] == 'success') {
+      List<Review> reviewsList = (data['reviews'] as List)
           .where((item) => item is Map<String, dynamic>)
           .map((item) => Review.fromJson(item as Map<String, dynamic>))
           .toList();
-      Review currentUserReview = Review.fromJson(
-          response['current_user_review'] as Map<String, dynamic>);
+
+      Review? currentUserReview = (data['current_user_review'] != null)
+          ? Review.fromJson(data['current_user_review'] as Map<String, dynamic>)
+          : null;
 
       return {
         'reviews': reviewsList,
@@ -108,10 +111,10 @@ class _ReviewPageState extends State<ReviewPage> {
         }),
       );
 
-      if (response is Map) {
+      if (response['status'] == 'success') {
         print('Review submitted successfully');
       } else {
-        print('Failed to submit review');
+        print('Failed to submit review. Error: ${response['message']}');
       }
     } catch (e) {
       print('Error submitting review: $e');
@@ -120,6 +123,7 @@ class _ReviewPageState extends State<ReviewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Review Page!'),
@@ -155,12 +159,14 @@ class _ReviewPageState extends State<ReviewPage> {
                     ),
                   ),
                   ReviewCard(review: currentUserReview),
-                ] else
+                  const Divider(),
+                ] else if (request.loggedIn) ...[
                   ElevatedButton(
                     onPressed: _showAddReviewDialog,
                     child: const Text('Add Review'),
                   ),
-                const Divider(),
+                  const Divider()
+                ],
                 ...reviews
                     .where((review) => review.userName != currentUserName)
                     .map((review) => ReviewCard(review: review))
