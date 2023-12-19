@@ -99,27 +99,34 @@ class _ReviewPageState extends State<ReviewPage> {
   }
 
   Future<void> submitReview(String reviewContent) async {
-    String submitReviewUrl = '$BASE_URL/review/${widget.bookId}/create_review/';
-    final request = context.watch<CookieRequest>();
-    try {
-      final response = await request.postJson(
-        submitReviewUrl,
-        json.encode({
-          'bookId': widget.bookId,
-          'userName': currentUserName,
-          'review': reviewContent,
-        }),
-      );
+  String submitReviewUrl = '$BASE_URL/review/${widget.bookId}/create_review/';
+  final request = context.read<CookieRequest>();
+  try {
+    final response = await request.post(
+      submitReviewUrl,
+      {
+        'bookId': widget.bookId.toString(),
+        'userName': currentUserName,
+        'review': reviewContent,
+      }
+    );
 
+    // Check if response is in JSON format
+    if (response.headers['content-type']?.contains('application/json') ?? false) {
       if (response['status'] == 'success') {
         print('Review submitted successfully');
       } else {
         print('Failed to submit review. Error: ${response['message']}');
       }
-    } catch (e) {
-      print('Error submitting review: $e');
+    } else {
+      // Handle non-JSON response
+      print('Received non-JSON response: ${response.body}');
     }
+  } catch (e) {
+    print('Error submitting review: $e');
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
