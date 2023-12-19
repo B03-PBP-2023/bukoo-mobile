@@ -23,13 +23,11 @@ class LeftDrawer extends StatelessWidget {
       {
         try {
           await request.logout("$BASE_URL/auth/logout/");
-        } catch (e) {
-          request.loggedIn = false;
-        } finally {
           user.resetUser();
           // clear shared preferences
           SharedPreferences prefs = await SharedPreferences.getInstance();
           prefs.remove('user');
+        } finally {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Logout successful!'),

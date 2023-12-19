@@ -64,15 +64,6 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
 
-    if (!request.loggedIn) {
-      Navigator.pushReplacementNamed(context, HomePage.routeName);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('You must be logged in to submit a book!'),
-        ),
-      );
-    }
-
     Future<List<String>> getGenres() async {
       final response = await request.get("$BASE_URL/api/genre/");
       return response.cast<String>();
@@ -167,8 +158,7 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
                     ),
                   ),
                   constraints: BoxConstraints(
-                    minHeight:
-                        MediaQuery.of(context).size.height - heightOnTop,
+                    minHeight: MediaQuery.of(context).size.height - heightOnTop,
                   ),
                   width: MediaQuery.of(context).size.width,
                   child: Form(
