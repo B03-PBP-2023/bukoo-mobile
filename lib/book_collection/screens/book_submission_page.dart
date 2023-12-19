@@ -137,7 +137,6 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
         appBar: AppBar(
           title: const Text('Book Submission'),
         ),
-        drawer: const LeftDrawer(),
         body: Stack(
           children: [
             Container(
