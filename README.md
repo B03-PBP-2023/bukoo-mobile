@@ -1,5 +1,7 @@
 # BUKOO
 
+[![Build status](https://build.appcenter.ms/v0.1/apps/c3c347a9-50f5-4eb8-8f96-8454039d6028/branches/main/badge)](https://appcenter.ms)
+
 ## Daftar Isi
 
 - [Pendahuluan](#Pendahuluan)
