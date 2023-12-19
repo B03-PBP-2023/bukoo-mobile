@@ -5,7 +5,6 @@ import 'package:bukoo/core/config.dart';
 import 'package:bukoo/core/models/user.dart';
 import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:flutter/material.dart';
-import 'package:bukoo/book_collection/dummy.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
@@ -80,7 +79,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       const Image(
                         image: AssetImage('assets/logo.png'),
-                        width: 240,
+                        width: 180,
                         fit: BoxFit.cover,
                       ),
                       const Text(
@@ -89,9 +88,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       const SizedBox(height: 16.0),
                       Text(
-                        user.username != null
-                            ? 'Hi ${user.username}!'
-                            : 'Welcome!',
+                        user.username != null ? 'Hi ${user.name}!' : 'Welcome!',
                         style: const TextStyle(
                             fontSize: 28, fontWeight: FontWeight.bold),
                       ),
@@ -105,6 +102,10 @@ class _HomePageState extends State<HomePage> {
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width * 3 / 4,
                     child: SearchBar(
+                      onSubmitted: (value) {
+                        Navigator.pushNamed(context, '/search',
+                            arguments: {'query': value});
+                      },
                       key: _searchBarKey,
                       controller: _searchController,
                       trailing: const [Icon(Icons.search)],
@@ -146,8 +147,8 @@ class _HomePageState extends State<HomePage> {
                           .map((book) => BookCard(
                               bookId: book.id!,
                               title: book.title!,
-                              author: book.authors![0],
-                              imageUrl: book.imageUrl!))
+                              author: book.authors!.join(', '),
+                              imageUrl: book.imageUrl ?? BookCoverDefault))
                           .toList(),
                     ),
                     ScrollableCardsWrapper(
@@ -188,7 +189,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 } else {
-                  return SliverFillRemaining(
+                  return const SliverFillRemaining(
                     child: Center(
                       child: CircularProgressIndicator(),
                     ),
