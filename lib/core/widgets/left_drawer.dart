@@ -82,7 +82,7 @@ class LeftDrawer extends StatelessWidget {
                 title: const Text('Discussion Forum'),
                 onTap: () => {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return ForumFormPage(bookId: ,);
+                    return ForumFormPage();
                   }))
                 },
               ),
