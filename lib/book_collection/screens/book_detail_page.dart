@@ -24,6 +24,24 @@ class _BookDetailPageState extends State<BookDetailPage> {
   static const aspectRation = 0.625;
 
   bool isDescriptionExpanded = false;
+  bool isBookmarked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final request = context.read<CookieRequest>();
+    if (!request.loggedIn) return;
+    refreshBookmarkStatus();
+  }
+
+  void refreshBookmarkStatus() async {
+    final request = context.read<CookieRequest>();
+    final response = await request
+        .get("$BASE_URL/api/profile/get-bookmark-status/${widget.bookId}/");
+    setState(() {
+      isBookmarked = response['data'];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +68,36 @@ class _BookDetailPageState extends State<BookDetailPage> {
     void onClickDiscussion(int bookId) {
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => ForumPage(bookId: bookId)));
+    }
+
+    void addBoomark() async {
+      final response = await request
+          .post("$BASE_URL/api/profile/bookmark-book/${widget.bookId}/", {});
+      if (response['status'] == 'success') {
+        setState(() {
+          isBookmarked = true;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Book has been added to your bookmarks')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Failed to add book to your bookmarks')));
+      }
+    }
+
+    void deleteBookmark() async {
+      final response = await request
+          .post("$BASE_URL/api/profile/delete-bookmark/${widget.bookId}/", {});
+      if (response['status'] == 'success') {
+        setState(() {
+          isBookmarked = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Book has been removed from your bookmarks')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Failed to remove book from your bookmarks')));
+      }
     }
 
     return Scaffold(
@@ -115,15 +163,43 @@ class _BookDetailPageState extends State<BookDetailPage> {
                                               .bodyMedium),
                                     ),
                                     const SizedBox(height: 16),
+                                    if (request.loggedIn) ...[
+                                      if (isBookmarked)
+                                        SecondaryButton(
+                                            onPressed: deleteBookmark,
+                                            child: const Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.bookmark),
+                                                SizedBox(width: 8),
+                                                Text('Remove from Bookmarks')
+                                              ],
+                                            ))
+                                      else
+                                        PrimaryButton(
+                                            onPressed: addBoomark,
+                                            child: const Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.bookmark_border),
+                                                SizedBox(width: 8),
+                                                Text('Add to Bookmarks')
+                                              ],
+                                            )),
+                                      const SizedBox(height: 16)
+                                    ],
                                     SecondaryButton(
                                         onPressed: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                     ReviewPage(bookId:
-                                                      snapshot.data!.id!
-                                                    )));},
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ReviewPage(
+                                                          bookId: snapshot
+                                                              .data!.id!)));
+                                        },
                                         child: const Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
@@ -134,39 +210,20 @@ class _BookDetailPageState extends State<BookDetailPage> {
                                           ],
                                         )),
                                     const SizedBox(height: 16),
-                                    if (request.loggedIn)
-                                      Column(
-                                        children: [
-                                          PrimaryButton(
-                                              onPressed: () {},
-                                              child: const Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Icon(Icons.bookmark_border),
-                                                  SizedBox(width: 8),
-                                                  Text('Add to Bookmarks')
-                                                ],
-                                              )),
-                                          const SizedBox(height: 16),
-                                          PrimaryButton(
-                                              onPressed: () {
-                                                onClickDiscussion(
-                                                    snapshot.data!.id!);
-                                              },
-                                              child: const Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Icon(CustomIcon.discussion),
-                                                  SizedBox(width: 8),
-                                                  Text('Open Discussion')
-                                                ],
-                                              )),
-                                          const SizedBox(height: 16),
-                                        ],
-                                      ),
-
+                                    SecondaryButton(
+                                        onPressed: () {
+                                          onClickDiscussion(snapshot.data!.id!);
+                                        },
+                                        child: const Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(CustomIcon.discussion),
+                                            SizedBox(width: 8),
+                                            Text('Open Discussion')
+                                          ],
+                                        )),
+                                    const SizedBox(height: 16),
                                     const Text('Genres',
                                         style: TextStyle(
                                             fontSize: 16,
