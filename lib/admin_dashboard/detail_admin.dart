@@ -4,7 +4,7 @@ import 'package:bukoo/admin_dashboard/admin_dash.dart';
 class DetailAdminPage extends StatefulWidget {
   final Book book; // Menerima objek buku
 
-  DetailAdminPage({Key? key, required this.book}) : super(key: key);
+  const DetailAdminPage({super.key, required this.book});
 
   @override
   _DetailAdminPageState createState() => _DetailAdminPageState();
