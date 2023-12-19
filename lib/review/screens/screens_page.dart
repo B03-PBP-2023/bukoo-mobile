@@ -1,10 +1,10 @@
+// ignore_for_file: use_build_context_synchronously, avoid_print
+
 import 'package:flutter/material.dart';
-import 'package:bukoo/book_collection/models/book.dart';
 import 'package:bukoo/core/config.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 class ReviewPage extends StatefulWidget {
   final int bookId;
@@ -40,8 +40,8 @@ class _ReviewPageState extends State<ReviewPage> {
     final data = response['data'];
     if (response['status'] == 'success') {
       List<Review> reviewsList = (data['reviews'] as List)
-          .where((item) => item is Map<String, dynamic>)
-          .map((item) => Review.fromJson(item as Map<String, dynamic>))
+          .whereType<Map<String, dynamic>>()
+          .map((item) => Review.fromJson(item))
           .toList();
 
       Review? currentUserReview = (data['current_user_review'] != null)
@@ -58,35 +58,35 @@ class _ReviewPageState extends State<ReviewPage> {
   }
 
   Future<void> _showAddReviewDialog() async {
-    final TextEditingController _reviewController = TextEditingController();
+    final TextEditingController reviewController = TextEditingController();
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // User must tap a button to close the dialog.
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Add Review'),
+          title: const Text('Add Review'),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
                 TextField(
-                  controller: _reviewController,
+                  controller: reviewController,
                   decoration:
-                      InputDecoration(hintText: "Enter your review here"),
+                      const InputDecoration(hintText: "Enter your review here"),
                 ),
               ],
             ),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Submit'),
+              child: const Text('Submit'),
               onPressed: () async {
-                await submitReview(_reviewController.text);
+                await submitReview(reviewController.text);
                 Navigator.of(context).pop();
                 setState(
                     () {}); // Refresh the page or update the state as needed
@@ -169,8 +169,7 @@ class _ReviewPageState extends State<ReviewPage> {
                 ],
                 ...reviews
                     .where((review) => review.userName != currentUserName)
-                    .map((review) => ReviewCard(review: review))
-                    .toList(),
+                    .map((review) => ReviewCard(review: review)),
               ],
             ),
           );
@@ -183,28 +182,28 @@ class _ReviewPageState extends State<ReviewPage> {
 class ReviewCard extends StatelessWidget {
   final Review review;
 
-  ReviewCard({Key? key, required this.review}) : super(key: key);
+  const ReviewCard({super.key, required this.review});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.all(8.0),
+      margin: const EdgeInsets.all(8.0),
       child: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               review.userName,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16.0,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             Text(
               review.content,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14.0,
               ),
             ),

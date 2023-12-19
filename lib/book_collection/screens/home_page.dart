@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:bukoo/book_collection/models/book.dart';
 import 'package:bukoo/book_collection/widgets/book_card.dart';
 import 'package:bukoo/book_collection/widgets/scrollable_cards_wrapper.dart';

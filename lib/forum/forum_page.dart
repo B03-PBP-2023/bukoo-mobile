@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 
 import 'package:bukoo/book_collection/models/book.dart';
@@ -52,8 +54,8 @@ class _ForumPageState extends State<ForumPage> {
 
     // Melakukan konversi data json menjadi object Reply
     List<Reply> listReplies = [];
-    for (var reply_data in response) {
-      var reply = Reply.fromJson(reply_data);
+    for (var replyData in response) {
+      var reply = Reply.fromJson(replyData);
       listReplies.add(reply);
     }
     return listReplies;
@@ -201,14 +203,14 @@ class _ForumPageState extends State<ForumPage> {
                                               if (response['status'] ==
                                                   'success') {
                                                 ScaffoldMessenger.of(context)
-                                                    .showSnackBar(SnackBar(
+                                                    .showSnackBar(const SnackBar(
                                                         content: Text(
                                                             'Reply added')));
                                                 refreshReplies(
                                                     request, forum.id!);
                                               } else {
                                                 ScaffoldMessenger.of(context)
-                                                    .showSnackBar(SnackBar(
+                                                    .showSnackBar(const SnackBar(
                                                         content: Text(
                                                             'Failed to add reply')));
                                               }
@@ -265,7 +267,7 @@ class _ForumPageState extends State<ForumPage> {
                                     ),
                                     const SizedBox(height: 16)
                                   ];
-                                }).toList()
+                                })
                               ]))
                       ],
                     );
