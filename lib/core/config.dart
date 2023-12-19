@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 // const BASE_URL = 'http://localhost:8000';
 const BASE_URL = 'https://bukoo.azurewebsites.net';
 

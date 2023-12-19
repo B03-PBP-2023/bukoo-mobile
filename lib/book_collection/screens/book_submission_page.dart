@@ -1,26 +1,24 @@
+// ignore_for_file: use_build_context_synchronously, avoid_print
+
 import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:bukoo/book_collection/widgets/custom_autocomplete_text_field.dart';
 import 'package:bukoo/core/config.dart';
 import 'package:bukoo/core/models/user.dart';
-import 'package:bukoo/core/utils/get_cookie.dart';
-import 'package:bukoo/core/utils/get_cookie_web.dart';
 import 'package:bukoo/core/widgets/custom_text_field.dart';
 import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:bukoo/core/widgets/loading_layer.dart';
 import 'package:bukoo/core/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 class BookSubmissionPage extends StatefulWidget {
-  BookSubmissionPage({super.key});
+  const BookSubmissionPage({super.key});
 
   static const routeName = '/book-submission';
 
@@ -29,7 +27,7 @@ class BookSubmissionPage extends StatefulWidget {
 }
 
 class _BookSubmissionPageState extends State<BookSubmissionPage> {
-  static const HEIGHT_ON_TOP = 100.0;
+  static const heightOnTop = 100.0;
   bool isLoading = false;
 
   final _formKey = GlobalKey<FormState>();
@@ -65,7 +63,6 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
-    final user = context.watch<User>();
 
     if (!request.loggedIn) {
       Navigator.pushReplacementNamed(context, HomePage.routeName);
@@ -160,7 +157,7 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
             ListView(
               children: [
                 const SizedBox(
-                  height: HEIGHT_ON_TOP,
+                  height: heightOnTop,
                 ),
                 Container(
                   decoration: const BoxDecoration(
@@ -171,7 +168,7 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
                   ),
                   constraints: BoxConstraints(
                     minHeight:
-                        MediaQuery.of(context).size.height - HEIGHT_ON_TOP,
+                        MediaQuery.of(context).size.height - heightOnTop,
                   ),
                   width: MediaQuery.of(context).size.width,
                   child: Form(

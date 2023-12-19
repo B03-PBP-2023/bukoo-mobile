@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:bukoo/core/config.dart';
 import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:bukoo/core/widgets/loading_layer.dart';
@@ -25,7 +27,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  static const HEIGHT_ON_TOP = 200.0;
+  static const heightOnTop = 200.0;
   final genderOptions = ["male", "female"];
 
   final _formKey = GlobalKey<FormState>();
@@ -41,8 +43,6 @@ class _RegisterPageState extends State<RegisterPage> {
   String? _passwordErrorText;
   String? _passwordConfirmationErrorText;
   String? _fullNameErrorText;
-  String? _genderErrorText;
-  String? _dateOfBirthErrorText;
 
   Roles? selectedRole;
   int _currentStep = 0;
@@ -91,7 +91,7 @@ class _RegisterPageState extends State<RegisterPage> {
             ListView(
               children: [
                 const SizedBox(
-                  height: HEIGHT_ON_TOP,
+                  height: heightOnTop,
                 ),
                 Container(
                   decoration: const BoxDecoration(
@@ -102,7 +102,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   constraints: BoxConstraints(
                     minHeight:
-                        MediaQuery.of(context).size.height - HEIGHT_ON_TOP,
+                        MediaQuery.of(context).size.height - heightOnTop,
                   ),
                   width: MediaQuery.of(context).size.width,
                   child: Form(
