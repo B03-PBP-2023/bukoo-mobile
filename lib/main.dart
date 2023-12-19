@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:bukoo/book_collection/screens/book_submission_page.dart';
 import 'package:bukoo/book_collection/screens/search_page.dart';
 import 'package:bukoo/core/models/user.dart';
@@ -59,10 +61,10 @@ class App extends StatelessWidget {
         initialRoute: HomePage.routeName,
         routes: {
           HomePage.routeName: (context) => const HomePage(),
-          '/admin_dashboard': (context) => AdminDash(),
+          '/admin_dashboard': (context) => const AdminDash(),
           LoginPage.routeName: (context) => const LoginPage(),
           RegisterPage.routeName: (context) => const RegisterPage(),
-          BookSubmissionPage.routeName: (context) => BookSubmissionPage(),
+          BookSubmissionPage.routeName: (context) => const BookSubmissionPage(),
           SearchPage.routeName: (context) => const SearchPage(),
         },
       ),

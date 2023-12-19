@@ -1,4 +1,3 @@
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:bukoo/core/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';

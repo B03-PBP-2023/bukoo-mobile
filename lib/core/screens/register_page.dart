@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:bukoo/core/config.dart';
 import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:bukoo/core/widgets/loading_layer.dart';
@@ -25,7 +27,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  static const HEIGHT_ON_TOP = 200.0;
+  static const heightOnTop = 200.0;
   final genderOptions = ["male", "female"];
 
   final _formKey = GlobalKey<FormState>();
@@ -41,8 +43,6 @@ class _RegisterPageState extends State<RegisterPage> {
   String? _passwordErrorText;
   String? _passwordConfirmationErrorText;
   String? _fullNameErrorText;
-  String? _genderErrorText;
-  String? _dateOfBirthErrorText;
 
   Roles? selectedRole;
   int _currentStep = 0;
@@ -91,7 +91,7 @@ class _RegisterPageState extends State<RegisterPage> {
             ListView(
               children: [
                 const SizedBox(
-                  height: HEIGHT_ON_TOP,
+                  height: heightOnTop,
                 ),
                 Container(
                   decoration: const BoxDecoration(
@@ -101,8 +101,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
                   constraints: BoxConstraints(
-                    minHeight:
-                        MediaQuery.of(context).size.height - HEIGHT_ON_TOP,
+                    minHeight: MediaQuery.of(context).size.height - heightOnTop,
                   ),
                   width: MediaQuery.of(context).size.width,
                   child: Form(
@@ -247,35 +246,75 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
         const SizedBox(height: 24.0),
         CustomTextField(
-          controller: _username,
-          labelText: "Username",
+          controller: _fullname,
+          labelText: "Full Name",
           prefixIcon: const Icon(CustomIcon.profile),
-          hintText: "yourusername",
-          errorText: _usernameErrorText,
+          hintText: "Your Full Name",
+          errorText: _fullNameErrorText,
+        ),
+        const SizedBox(height: 24.0),
+        const Text('Gender',
+            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w500)),
+        const SizedBox(height: 8.0),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16.0),
+            border: Border.all(
+              color: Colors.grey,
+              width: 2.0,
+            ),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              hint: const Text("Select gender"),
+              value: _gender,
+              onChanged: (String? newValue) {
+                setState(() {
+                  _gender = newValue;
+                });
+              },
+              items:
+                  genderOptions.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+          ),
         ),
         const SizedBox(height: 24.0),
         CustomTextField(
-          controller: _email,
-          labelText: "Email",
-          prefixIcon: const Icon(Icons.email),
-          hintText: "bukoo@example.com",
-          errorText: _emailErrorText,
-        ),
-        const SizedBox(height: 24.0),
-        CustomTextField(
-          controller: _password,
-          labelText: "Password",
-          obscureText: true,
-          hintText: "********",
-          errorText: _passwordErrorText,
-        ),
-        const SizedBox(height: 24.0),
-        CustomTextField(
-          controller: _passwordConfirmation,
-          labelText: "Confirm Password",
-          obscureText: true,
-          hintText: "********",
-          errorText: _passwordConfirmationErrorText,
+          controller: _dateOfBirth,
+          labelText: 'Date of Birth',
+          hintText: '2000-12-31',
+          keyboardType: TextInputType.datetime,
+          validator: (value) {
+            try {
+              DateFormat('yyyy-MM-dd').parseStrict(value!);
+              return null;
+            } catch (e) {
+              return 'The format must be yyyy-MM-dd';
+            }
+          },
+          suffixIcon: InkWell(
+              onTap: () async {
+                FocusScope.of(context).requestFocus(FocusNode());
+                final DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(1900),
+                  lastDate: DateTime.now(),
+                );
+                if (pickedDate != null) {
+                  String formattedDate =
+                      DateFormat('yyyy-MM-dd').format(pickedDate);
+                  _dateOfBirth.text = formattedDate;
+                }
+              },
+              child: const Icon(Icons.calendar_month_outlined)),
         ),
         const SizedBox(height: 24.0),
         PrimaryButton(onPressed: _nextStep, child: const Text('Next')),
@@ -322,58 +361,35 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
         const SizedBox(height: 24.0),
         CustomTextField(
-          controller: _fullname,
-          labelText: "Full Name",
+          controller: _username,
+          labelText: "Username",
           prefixIcon: const Icon(CustomIcon.profile),
-          hintText: "Your Full Name",
-          errorText: _fullNameErrorText,
-        ),
-        const SizedBox(height: 24.0),
-        DropdownButton<String>(
-          hint: const Text("Select gender"),
-          value: _gender,
-          onChanged: (String? newValue) {
-            setState(() {
-              _gender = newValue;
-            });
-          },
-          items: genderOptions.map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
+          hintText: "yourusername",
+          errorText: _usernameErrorText,
         ),
         const SizedBox(height: 24.0),
         CustomTextField(
-          controller: _dateOfBirth,
-          labelText: 'Date of Birth',
-          hintText: '2000-12-31',
-          keyboardType: TextInputType.datetime,
-          validator: (value) {
-            try {
-              DateFormat('yyyy-MM-dd').parseStrict(value!);
-              return null;
-            } catch (e) {
-              return 'The format must be yyyy-MM-dd';
-            }
-          },
-          suffixIcon: InkWell(
-              onTap: () async {
-                FocusScope.of(context).requestFocus(FocusNode());
-                final DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(1900),
-                  lastDate: DateTime.now(),
-                );
-                if (pickedDate != null) {
-                  String formattedDate =
-                      DateFormat('yyyy-MM-dd').format(pickedDate);
-                  _dateOfBirth.text = formattedDate;
-                }
-              },
-              child: const Icon(Icons.calendar_month_outlined)),
+          controller: _email,
+          labelText: "Email",
+          prefixIcon: const Icon(Icons.email),
+          hintText: "bukoo@example.com",
+          errorText: _emailErrorText,
+        ),
+        const SizedBox(height: 24.0),
+        CustomTextField(
+          controller: _password,
+          labelText: "Password",
+          obscureText: true,
+          hintText: "********",
+          errorText: _passwordErrorText,
+        ),
+        const SizedBox(height: 24.0),
+        CustomTextField(
+          controller: _passwordConfirmation,
+          labelText: "Confirm Password",
+          obscureText: true,
+          hintText: "********",
+          errorText: _passwordConfirmationErrorText,
         ),
         const SizedBox(height: 24.0),
         PrimaryButton(onPressed: _onSubmit, child: const Text('Submit')),
@@ -467,6 +483,17 @@ class _RegisterPageState extends State<RegisterPage> {
           setState(() {
             _fullNameErrorText = message['date_of_birth'][0];
           });
+        }
+
+        if (message.containsKey('name') ||
+            message.containsKey('gender') ||
+            message.containsKey('date_of_birth')) {
+          _currentStep = 1;
+        } else if (message.containsKey('username') ||
+            message.containsKey('email') ||
+            message.containsKey('password1') ||
+            message.containsKey('password2')) {
+          _currentStep = 2;
         }
       }
     }

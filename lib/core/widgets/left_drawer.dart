@@ -1,12 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:bukoo/book_collection/screens/book_submission_page.dart';
 import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:bukoo/core/config.dart';
 import 'package:bukoo/core/models/user.dart';
 import 'package:bukoo/core/screens/login_page.dart';
-import 'package:bukoo/forum/add_forum.dart';
-import 'package:bukoo/forum/forum_page.dart';
 import 'package:flutter/material.dart';
-import 'package:bukoo/admin_dashboard/admin_dash.dart';
 import 'package:bukoo/core/etc/custom_icon_icons.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -20,17 +19,15 @@ class LeftDrawer extends StatelessWidget {
     final request = context.watch<CookieRequest>();
     final user = context.watch<User>();
 
-    void _onLogout() async {
+    void onLogout() async {
       {
         try {
           await request.logout("$BASE_URL/auth/logout/");
-        } catch (e) {
-          request.loggedIn = false;
-        } finally {
           user.resetUser();
           // clear shared preferences
           SharedPreferences prefs = await SharedPreferences.getInstance();
           prefs.remove('user');
+        } finally {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Logout successful!'),
@@ -79,20 +76,6 @@ class LeftDrawer extends StatelessWidget {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 24.0),
-              child: ListTile(
-                leading: const Icon(CustomIcon.discussion),
-                title: const Text('Discussion Forum'),
-                onTap: () => {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return ForumFormPage(
-                      bookId: 1,
-                    );
-                  }))
-                },
-              ),
-            ),
             Visibility(
               visible: request.loggedIn &&
                   (user.isAdmin == null ? false : user.isAdmin!),
@@ -126,7 +109,7 @@ class LeftDrawer extends StatelessWidget {
                 child: ListTile(
                     leading: const Icon(Icons.logout),
                     title: const Text('Logout'),
-                    onTap: _onLogout),
+                    onTap: onLogout),
               ),
             ),
             Visibility(
