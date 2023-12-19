@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:bukoo/book_collection/models/book.dart';
+import 'package:bukoo/book_collection/screens/search_page.dart';
 import 'package:bukoo/book_collection/widgets/book_card.dart';
 import 'package:bukoo/book_collection/widgets/scrollable_cards_wrapper.dart';
 import 'package:bukoo/core/config.dart';
@@ -19,7 +20,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TextEditingController _searchController = TextEditingController();
   final GlobalKey _searchBarKey = GlobalKey();
 
   @override
@@ -103,23 +103,40 @@ class _HomePageState extends State<HomePage> {
                   // padding: EdgeInsets.only(bottom: 16),
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width * 3 / 4,
-                    child: SearchBar(
-                      onSubmitted: (value) {
-                        Navigator.pushNamed(context, '/search',
-                            arguments: {'query': value});
-                      },
-                      key: _searchBarKey,
-                      controller: _searchController,
-                      trailing: const [Icon(Icons.search)],
-                      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                          const EdgeInsets.symmetric(horizontal: 16.0)),
-                      surfaceTintColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
-                      hintText: 'Search by Title, Author, or ISBN',
-                      textStyle: MaterialStateProperty.all<TextStyle>(
-                          const TextStyle(fontSize: 14.0)),
-                      hintStyle: MaterialStateProperty.all<TextStyle>(
-                          const TextStyle(color: Colors.black26)),
+                    child: Hero(
+                      tag: 'searchBar',
+                      child: SearchBar(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            PageRouteBuilder(
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      const SearchPage(),
+                              transitionDuration: const Duration(
+                                  milliseconds:
+                                      300), // Customize transition duration here
+                              transitionsBuilder: (context, animation,
+                                  secondaryAnimation, child) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        key: _searchBarKey,
+                        trailing: const [Icon(Icons.search)],
+                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                            const EdgeInsets.symmetric(horizontal: 16.0)),
+                        surfaceTintColor:
+                            MaterialStateProperty.all<Color>(Colors.white),
+                        hintText: 'Search by Title, Author, or ISBN',
+                        textStyle: MaterialStateProperty.all<TextStyle>(
+                            const TextStyle(fontSize: 14.0)),
+                        hintStyle: MaterialStateProperty.all<TextStyle>(
+                            const TextStyle(color: Colors.black26)),
+                      ),
                     ),
                   ),
                 )
