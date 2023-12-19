@@ -11,6 +11,7 @@ import 'package:bukoo/forum/forum_page.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:bukoo/review/screens/screens_page.dart';
 
 class BookDetailPage extends StatefulWidget {
   final int bookId;
@@ -119,7 +120,14 @@ class _BookDetailPageState extends State<BookDetailPage> {
                                     ),
                                     const SizedBox(height: 16),
                                     SecondaryButton(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                     ReviewPage(bookId:
+                                                      snapshot.data!.id!
+                                                    )));},
                                         child: const Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
