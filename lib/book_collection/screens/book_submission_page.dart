@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, avoid_print
+
 import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:bukoo/book_collection/widgets/custom_autocomplete_text_field.dart';
 import 'package:bukoo/core/config.dart';
@@ -8,7 +10,6 @@ import 'package:bukoo/core/widgets/loading_layer.dart';
 import 'package:bukoo/core/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -17,7 +18,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class BookSubmissionPage extends StatefulWidget {
-  BookSubmissionPage({super.key});
+  const BookSubmissionPage({super.key});
 
   static const routeName = '/book-submission';
 
@@ -26,13 +27,10 @@ class BookSubmissionPage extends StatefulWidget {
 }
 
 class _BookSubmissionPageState extends State<BookSubmissionPage> {
-  static const HEIGHT_ON_TOP = 100.0;
+  static const heightOnTop = 100.0;
   bool isLoading = false;
 
   final _formKey = GlobalKey<FormState>();
-  final _genreAutoCompleteKey = GlobalKey<AutoCompleteTextFieldState<String>>();
-  final _authorAutoCompleteKey =
-      GlobalKey<AutoCompleteTextFieldState<String>>();
   final TextEditingController _title = TextEditingController();
   final TextEditingController _publisher = TextEditingController();
   final TextEditingController _isbn = TextEditingController();
@@ -87,8 +85,14 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
         // Add headers
         var cookieRequest = Provider.of<CookieRequest>(context, listen: false);
 
-        cookieRequest.init();
+        await cookieRequest.init();
         request.headers.addAll(cookieRequest.headers);
+
+        // if (kIsWeb) {
+        //   var cookie =
+        //       'csrftoken=${getCookie('csrftoken')};sessionid=${getCookie('sessionid')}';
+        //   request.headers.addAll({'cookie': cookie});
+        // }
 
         request.fields['title'] = _title.text;
         request.fields['author'] = jsonEncode(_selectedAuthors);
@@ -116,9 +120,10 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
             ),
           );
         } else {
+          String body = await response.stream.bytesToString();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Book submission failed!'),
+            SnackBar(
+              content: Text('Book submission failed!. Error: $body'),
             ),
           );
         }
@@ -143,7 +148,7 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
             ListView(
               children: [
                 const SizedBox(
-                  height: HEIGHT_ON_TOP,
+                  height: heightOnTop,
                 ),
                 Container(
                   decoration: const BoxDecoration(
@@ -153,8 +158,7 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
                     ),
                   ),
                   constraints: BoxConstraints(
-                    minHeight:
-                        MediaQuery.of(context).size.height - HEIGHT_ON_TOP,
+                    minHeight: MediaQuery.of(context).size.height - heightOnTop,
                   ),
                   width: MediaQuery.of(context).size.width,
                   child: Form(
@@ -181,7 +185,6 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
                             ),
                             const SizedBox(height: 16.0),
                             CustomAutoCompleteTextField(
-                                autoCompleteKey: _authorAutoCompleteKey,
                                 selectedItems: _selectedAuthors,
                                 future: getAuthors,
                                 label: 'Author',
@@ -273,12 +276,12 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
                             ),
                             const SizedBox(height: 16.0),
                             CustomAutoCompleteTextField(
-                                autoCompleteKey: _genreAutoCompleteKey,
                                 selectedItems: _selectedGenres,
                                 future: getGenres,
                                 label: 'Genre',
                                 hintText: 'Book\'s genres...',
                                 addItem: (String item) {
+                                  print('addItem called with: $item');
                                   setState(() {
                                     _selectedGenres.add(item);
                                   });

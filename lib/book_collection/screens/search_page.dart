@@ -16,6 +16,7 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   void initState() {
+    super.initState();
     _searchController.text = widget.query != null ? widget.query! : '';
   }
 

@@ -1,18 +1,15 @@
+// ignore_for_file: use_build_context_synchronously, prefer_final_fields
+
 import 'package:bukoo/core/config.dart';
 import 'package:flutter/material.dart';
-import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
-import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:bukoo/forum/models/forum_model.dart';
-import 'package:bukoo/forum/models/reply_model.dart';
-import 'package:bukoo/core/config.dart';
-
 
 class ForumFormPage extends StatefulWidget {
-  int bookId;
-  ForumFormPage({super.key, required this.bookId});
+  final int bookId;
+  const ForumFormPage({super.key, required this.bookId});
 
   @override
   State<ForumFormPage> createState() => _ForumFormPageState();
@@ -32,7 +29,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Center(
-          child: const Text(
+          child: Text(
             'Forum Discussion',
             style: TextStyle(
                 color: Colors.black,
@@ -50,7 +47,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
           width: 390,
           height: 844,
           clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(color: Color(0xFFADC4CE)),
+          decoration: const BoxDecoration(color: Color(0xFFADC4CE)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -64,7 +61,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
-                  shadows: [
+                  shadows: const [
                     BoxShadow(
                       color: Color(0x3F000000),
                       blurRadius: 7.20,
@@ -74,7 +71,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 width: 248,
                 height: 29,
                 child: Text(
@@ -96,7 +93,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(50),
                   ),
-                  shadows: [
+                  shadows: const [
                     BoxShadow(
                       color: Color(0x3F000000),
                       blurRadius: 45.50,
@@ -106,7 +103,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 width: 89,
                 height: 19,
                 child: Text(
@@ -120,7 +117,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
                   ),
                 ),
               ),
-              Container(
+              SizedBox(
                 width: 320,
                 height: 373,
                 child: Column(
@@ -128,7 +125,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       height: 410,
                       child: Column(
@@ -136,7 +133,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
+                          SizedBox(
                             width: double.infinity,
                             height: 410,
                             child: Column(
@@ -174,13 +171,13 @@ class _ForumFormPageState extends State<ForumFormPage> {
                                       horizontal: 30, vertical: 10),
                                   clipBehavior: Clip.antiAlias,
                                   decoration: ShapeDecoration(
-                                    color: Color(0xFFF2F2F2),
+                                    color: const Color(0xFFF2F2F2),
                                     shape: RoundedRectangleBorder(
-                                      side: BorderSide(
+                                      side: const BorderSide(
                                           width: 1, color: Color(0xFFCFD4DC)),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    shadows: [
+                                    shadows: const [
                                       BoxShadow(
                                         color: Color(0x0C101828),
                                         blurRadius: 2,
@@ -196,7 +193,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
                                         CrossAxisAlignment.center,
                                     children: [
                                       Expanded(
-                                        child: Container(
+                                        child: SizedBox(
                                           height: 24,
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
@@ -208,8 +205,8 @@ class _ForumFormPageState extends State<ForumFormPage> {
                                               Expanded(
                                                 child: SizedBox(
                                                   child: Text(
-                                                    '$_description',
-                                                    style: TextStyle(
+                                                    _description,
+                                                    style: const TextStyle(
                                                       color: Color(0xFFADC4CE),
                                                       fontSize: 16,
                                                       fontFamily: 'Inter',
@@ -236,19 +233,19 @@ class _ForumFormPageState extends State<ForumFormPage> {
                   ],
                 ),
               ),
-              Container(
+              const SizedBox(
                 width: 24,
                 height: 138,
                 child: Stack(children: []),
               ),
-              Container(
+              SizedBox(
                 height: 70,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       height: 70,
                       child: Column(
@@ -256,7 +253,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
+                          SizedBox(
                             width: double.infinity,
                             height: 70,
                             child: Column(
@@ -264,7 +261,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
+                                const Text(
                                   'Hi! Reply the discussion!',
                                   style: TextStyle(
                                     color: Color(0xFF344053),
@@ -281,13 +278,13 @@ class _ForumFormPageState extends State<ForumFormPage> {
                                       horizontal: 14, vertical: 10),
                                   clipBehavior: Clip.antiAlias,
                                   decoration: ShapeDecoration(
-                                    color: Color(0xFFF2F2F2),
+                                    color: const Color(0xFFF2F2F2),
                                     shape: RoundedRectangleBorder(
-                                      side: BorderSide(
+                                      side: const BorderSide(
                                           width: 1, color: Color(0xFFCFD4DC)),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    shadows: [
+                                    shadows: const [
                                       BoxShadow(
                                         color: Color(0x0C101828),
                                         blurRadius: 2,
@@ -303,7 +300,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
                                         CrossAxisAlignment.center,
                                     children: [
                                       Expanded(
-                                        child: Container(
+                                        child: SizedBox(
                                           height: 24,
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
@@ -361,7 +358,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
                   ],
                 ),
               ),
-              Container(
+              const SizedBox(
                 width: 32,
                 height: 32,
                 child: Stack(children: []),
@@ -372,7 +369,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
       ),
       bottomNavigationBar: BottomAppBar(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: ElevatedButton(
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all(Colors.purple),

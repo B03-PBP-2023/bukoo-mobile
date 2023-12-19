@@ -1,16 +1,13 @@
-import 'package:bukoo/book_collection/dummy.dart';
 import 'package:bukoo/book_collection/models/book.dart';
 import 'package:bukoo/core/config.dart';
 import 'package:bukoo/core/etc/custom_icon_icons.dart';
-import 'package:bukoo/core/widgets/left_drawer.dart';
-import 'package:bukoo/core/widgets/loading_layer.dart';
 import 'package:bukoo/core/widgets/primary_button.dart';
 import 'package:bukoo/core/widgets/secondary_button.dart';
-import 'package:bukoo/forum/add_forum.dart';
 import 'package:bukoo/forum/forum_page.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:bukoo/review/screens/screens_page.dart';
 
 class BookDetailPage extends StatefulWidget {
   final int bookId;
@@ -23,7 +20,7 @@ class BookDetailPage extends StatefulWidget {
 }
 
 class _BookDetailPageState extends State<BookDetailPage> {
-  static const HEIGHT_ON_TOP = 240.0;
+  static const heightOnTop = 240.0;
   static const aspectRation = 0.625;
 
   bool isDescriptionExpanded = false;
@@ -41,7 +38,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
     }
 
     double getImageTop() {
-      return HEIGHT_ON_TOP - getImageHeight() / 2;
+      return heightOnTop - getImageHeight() / 2;
     }
 
     Future<Book> fetchBook() async {
@@ -79,7 +76,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                         Column(
                           children: [
                             const SizedBox(
-                              height: HEIGHT_ON_TOP,
+                              height: heightOnTop,
                             ),
                             Container(
                               decoration: const BoxDecoration(
@@ -90,7 +87,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                               ),
                               constraints: BoxConstraints(
                                 minHeight: MediaQuery.of(context).size.height -
-                                    HEIGHT_ON_TOP,
+                                    heightOnTop,
                               ),
                               width: MediaQuery.of(context).size.width,
                               child: Padding(
@@ -119,7 +116,14 @@ class _BookDetailPageState extends State<BookDetailPage> {
                                     ),
                                     const SizedBox(height: 16),
                                     SecondaryButton(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                     ReviewPage(bookId:
+                                                      snapshot.data!.id!
+                                                    )));},
                                         child: const Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
@@ -341,7 +345,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(16),
                                 child: Image.network(
-                                  snapshot.data!.imageUrl!,
+                                  snapshot.data!.imageUrl ?? BookCoverDefault,
                                   width: getImageWidth(),
                                   height: getImageHeight(),
                                   fit: BoxFit.cover,

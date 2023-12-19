@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:bukoo/book_collection/models/book.dart';
 import 'package:bukoo/book_collection/widgets/book_card.dart';
 import 'package:bukoo/book_collection/widgets/scrollable_cards_wrapper.dart';
@@ -148,7 +150,7 @@ class _HomePageState extends State<HomePage> {
                               bookId: book.id!,
                               title: book.title!,
                               author: book.authors!.join(', '),
-                              imageUrl: book.imageUrl!))
+                              imageUrl: book.imageUrl ?? BookCoverDefault))
                           .toList(),
                     ),
                     ScrollableCardsWrapper(
@@ -189,7 +191,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 } else {
-                  return SliverFillRemaining(
+                  return const SliverFillRemaining(
                     child: Center(
                       child: CircularProgressIndicator(),
                     ),
