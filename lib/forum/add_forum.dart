@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter/material.dart';
 import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -6,9 +8,11 @@ import 'dart:convert';
 import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:bukoo/forum/models/forum_model.dart';
 import 'package:bukoo/forum/models/reply_model.dart';
+import 'package:bukoo/core/config.dart';
+
 
 class ForumFormPage extends StatefulWidget {
-  const ForumFormPage({Key? key}) : super(key: key);
+  const ForumFormPage({super.key});
 
   @override
   State<ForumFormPage> createState() => _ForumFormPageState();
@@ -16,11 +20,15 @@ class ForumFormPage extends StatefulWidget {
 
 class _ForumFormPageState extends State<ForumFormPage> {
   final _formKey = GlobalKey<FormState>();
+  // ignore: unused_field
   String _subject = "";
   String _description = "";
+  String _reply = "";
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Center(
@@ -313,7 +321,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
                                                 ElevatedButton(
                                                     onPressed: () async {
                                                     if (_formKey.currentState!.validate()) {
-                                                        final response = await sendReply(); // Panggil fungsi sendReply
+                                                        final response = await sendReply(request); // Panggil fungsi sendReply
 
                                                         if (response == 'success') {
                                                         ScaffoldMessenger.of(context).showSnackBar(
@@ -370,7 +378,7 @@ class _ForumFormPageState extends State<ForumFormPage> {
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 // Validasi sukses, lakukan operasi async di sini
-                final response = await ForumPost(); 
+                final response = await forumPost(request); 
                 if (response == 'success') {
                   // Tampilkan pesan sukses
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -407,14 +415,15 @@ class _ForumFormPageState extends State<ForumFormPage> {
   }
 
   // Fungsi untuk mengirim forum post ke server
-  Future<String> ForumPost() async {
+  Future<String> forumPost(CookieRequest request) async {
     try {
       // Kirim data forum ke server atau penyimpanan di sini
        final response = await request.postJson(
-                              "http://127.0.0.1:8000/create-forum-flutter/",
-                              jsonEncode(forumPost.toJson()));
-
-        //ini diisi apaan??????????????????????????????????????????????????????????????????????
+                              "$BASE_URL/create-forum-flutter/",
+                               jsonEncode({
+                              'description': _description
+                            }),
+                          );
 
        if (response.statusCode == 200) {
          return 'success';
@@ -428,11 +437,11 @@ class _ForumFormPageState extends State<ForumFormPage> {
   }
 
   // Fungsi untuk mengirim balasan (reply) ke server
-  Future<String> sendReply() async {
+  Future<String> sendReply(CookieRequest request) async {
     try {
       // Kirim data balasan (reply) ke server
       final response = await request.postJson(
-        "http://127.0.0.1:8000/create-forum-flutter/", 
+        "$BASE_URL/create-forum-flutter/", 
         jsonEncode({
           'reply': _reply,
         }),

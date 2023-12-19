@@ -13,6 +13,7 @@ import 'package:bukoo/forum/models/forum_model.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:bukoo/forum/add_forum.dart';
 
 class ForumPage extends StatefulWidget {
   final int bookId;
@@ -107,7 +108,9 @@ class _ForumPageState extends State<ForumPage> {
                   Text(snapshot.data!.book.authors!.join(', ')),
                   const SizedBox(height: 24),
                   PrimaryButton(
-                      onPressed: () {}, child: const Text('Create New Forum')),
+                      onPressed: () {Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const ForumFormPage()));
+            }, child: const Text('Create New Forum')),
                   const SizedBox(height: 24),
                   ...snapshot.data!.forums.map((forum) {
                     return Column(
