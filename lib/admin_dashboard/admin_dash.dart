@@ -3,19 +3,17 @@ import 'package:bukoo/admin_dashboard/detail_admin.dart';
 import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:provider/provider.dart';
 
-void main() => runApp(AdminDash());
+// void main() => runApp(AdminDash());
 
 class AdminDash extends StatefulWidget {
-  AdminDash({super.key});
+  final List<Map<String, dynamic>> submittedBooks; // Tambahkan parameter ini
+
+  AdminDash({Key? key, this.submittedBooks = const []}) : super(key: key);
+  // AdminDash({super.key, required this.submittedBooks});
   static const routeName = '/admin-dash';
 
   @override
   State<AdminDash> createState() => _DashboardPage();
-  // static const routeName = '/';
-  // @override
-  // Widget build(BuildContext context) {
-  //   return DashboardPage(); // Kembalikan langsung DashboardPage
-  // }
 }
 
 class BookProvider extends ChangeNotifier {
@@ -39,28 +37,19 @@ class BookProvider extends ChangeNotifier {
 
 
 class _DashboardPage extends State<AdminDash>{
-  final List<Book> books = [
-    Book(
-      number: 1,
-      title: 'Book 1',
-      publisher: 'Publisher 1',
-      genre: 'Genre 1',
-      status: 'Verified',
-      description: 'bagus',
-      language: 'Bahasa',
-      isbn: '0000000',
-      numberOfPages: 266,
-      publishDate: '19/02/2004',
-    ),
-    // Tambahkan lebih banyak buku di sini
-  ];
+  List<Book> books = [];
+   @override
+  void initState() {
+    super.initState();
+    books.addAll(widget.submittedBooks.map((bookData) => Book.fromJson(bookData)));// Tambahkan data yang dikirim dari BookSubmissionPage
+  }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     bool isLargeScreen = screenWidth > 600; // contoh breakpoint
     List<Book> books = Provider.of<BookProvider>(context).books;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Admin Dashboard'),
@@ -100,10 +89,13 @@ class _DashboardPage extends State<AdminDash>{
   }
 
   void _showBookDetail(Book book, BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => DetailAdminPage(book: book)),
-    );
-  }
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (context) => DetailAdminPage(book: book, submittedBooks: books),
+    ),
+  );
+}
+
 }
 
 Widget buildStatusWidget(String status) {
@@ -152,16 +144,16 @@ Widget buildStatusWidget(String status) {
 }
 
 class Book {
-  int number;
-  String title;
-  String publisher;
-  String genre;
-  String status;
-  String description;
-  String language;
-  String isbn;
-  int numberOfPages;
-  String publishDate;
+  final int number;
+  final String title;
+  final String publisher;
+  final String genre;
+  final String status;
+  final String description;
+  final String language;
+  final String isbn;
+  final int numberOfPages;
+  final String publishDate;
 
   Book({
     required this.number,
@@ -175,4 +167,37 @@ class Book {
     required this.numberOfPages,
     required this.publishDate,
   });
+
+  // Konstruktor `fromJson`
+  factory Book.fromJson(Map<String, dynamic> json) {
+    return Book(
+      number: json['number'],
+      title: json['title'],
+      publisher: json['publisher'],
+      genre: json['genre'],
+      status: json['status'],
+      description: json['description'],
+      language: json['language'],
+      isbn: json['isbn'],
+      numberOfPages: json['numberOfPages'],
+      publishDate: json['publishDate'],
+    );
+  }
+
+  // Metode `toJson`
+  Map<String, dynamic> toJson() {
+    return {
+      'number': number,
+      'title': title,
+      'publisher': publisher,
+      'genre': genre,
+      'status': status,
+      'description': description,
+      'language': language,
+      'isbn': isbn,
+      'numberOfPages': numberOfPages,
+      'publishDate': publishDate,
+    };
+  }
 }
+

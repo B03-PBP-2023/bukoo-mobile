@@ -66,7 +66,7 @@ class App extends StatelessWidget {
           HomePage.routeName: (context) => HomePage(),
           LoginPage.routeName: (context) => LoginPage(),
           RegisterPage.routeName: (context) => RegisterPage(),
-          AdminDash.routeName: (context) => AdminDash(),
+          AdminDash.routeName: (context) => AdminDash(submittedBooks: []),
           BookSubmissionPage.routeName: (context) => BookSubmissionPage(),
           SearchPage.routeName: (context) => SearchPage(),
         },

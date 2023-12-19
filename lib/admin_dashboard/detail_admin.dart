@@ -3,8 +3,8 @@ import 'package:bukoo/admin_dashboard/admin_dash.dart';
 
 class DetailAdminPage extends StatefulWidget {
   final Book book; // Menerima objek buku
-
-  DetailAdminPage({Key? key, required this.book}) : super(key: key);
+  final List<Book> submittedBooks;
+  DetailAdminPage({Key? key, required this.book, required this.submittedBooks}) : super(key: key);
 
   @override
   _DetailAdminPageState createState() => _DetailAdminPageState();
@@ -17,7 +17,8 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
 
   @override
   void initState() {
-    super.initState();
+    super.initState(); 
+    
     selectedStatus = widget.book.status; // Mengatur status awal dari buku
     currentStatus = selectedStatus;
   }
