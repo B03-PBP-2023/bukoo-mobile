@@ -109,7 +109,7 @@ class _ForumPageState extends State<ForumPage> {
                   const SizedBox(height: 24),
                   PrimaryButton(
                       onPressed: () {Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const ForumFormPage()));
+            MaterialPageRoute(builder: (context) => ForumFormPage(bookId: widget.bookId)));
             }, child: const Text('Create New Forum')),
                   const SizedBox(height: 24),
                   ...snapshot.data!.forums.map((forum) {
