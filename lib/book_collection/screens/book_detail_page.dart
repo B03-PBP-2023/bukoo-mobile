@@ -349,7 +349,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(16),
                                 child: Image.network(
-                                  snapshot.data!.imageUrl!,
+                                  snapshot.data!.imageUrl ?? BookCoverDefault,
                                   width: getImageWidth(),
                                   height: getImageHeight(),
                                   fit: BoxFit.cover,

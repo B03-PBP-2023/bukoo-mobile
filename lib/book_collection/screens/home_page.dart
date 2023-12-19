@@ -148,7 +148,7 @@ class _HomePageState extends State<HomePage> {
                               bookId: book.id!,
                               title: book.title!,
                               author: book.authors!.join(', '),
-                              imageUrl: book.imageUrl!))
+                              imageUrl: book.imageUrl ?? BookCoverDefault))
                           .toList(),
                     ),
                     ScrollableCardsWrapper(
@@ -189,7 +189,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 } else {
-                  return SliverFillRemaining(
+                  return const SliverFillRemaining(
                     child: Center(
                       child: CircularProgressIndicator(),
                     ),

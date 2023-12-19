@@ -32,6 +32,10 @@ class App extends StatelessWidget {
         FutureProvider<User>(
           create: (_) async {
             SharedPreferences prefs = await SharedPreferences.getInstance();
+            final request = _.read<CookieRequest>();
+            if (!request.loggedIn) {
+              prefs.remove('user');
+            }
             String? userJson = prefs.getString('user');
             if (userJson != null) {
               User user = User.fromJson(jsonDecode(userJson));
@@ -54,12 +58,12 @@ class App extends StatelessWidget {
         ),
         initialRoute: HomePage.routeName,
         routes: {
-          HomePage.routeName: (context) => HomePage(),
+          HomePage.routeName: (context) => const HomePage(),
           '/admin_dashboard': (context) => AdminDash(),
-          LoginPage.routeName: (context) => LoginPage(),
-          RegisterPage.routeName: (context) => RegisterPage(),
+          LoginPage.routeName: (context) => const LoginPage(),
+          RegisterPage.routeName: (context) => const RegisterPage(),
           BookSubmissionPage.routeName: (context) => BookSubmissionPage(),
-          SearchPage.routeName: (context) => SearchPage(),
+          SearchPage.routeName: (context) => const SearchPage(),
         },
       ),
     );

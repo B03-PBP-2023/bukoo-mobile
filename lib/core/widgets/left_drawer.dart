@@ -10,6 +10,7 @@ import 'package:bukoo/admin_dashboard/admin_dash.dart';
 import 'package:bukoo/core/etc/custom_icon_icons.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
@@ -27,6 +28,9 @@ class LeftDrawer extends StatelessWidget {
           request.loggedIn = false;
         } finally {
           user.resetUser();
+          // clear shared preferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.remove('user');
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Logout successful!'),
@@ -82,7 +86,9 @@ class LeftDrawer extends StatelessWidget {
                 title: const Text('Discussion Forum'),
                 onTap: () => {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return ForumFormPage(bookId: 1,);
+                    return ForumFormPage(
+                      bookId: 1,
+                    );
                   }))
                 },
               ),
