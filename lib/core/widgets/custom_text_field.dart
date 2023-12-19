@@ -5,9 +5,13 @@ class CustomTextField extends StatelessWidget {
   final String labelText;
   final String? hintText;
   final Widget? prefixIcon;
+  final Widget? suffixIcon;
   final bool obscureText;
   final Function(String?)? validator;
   final String? errorText;
+  final TextInputType? keyboardType;
+  final int? maxLines;
+  final int? minLines;
 
   const CustomTextField({
     super.key,
@@ -15,11 +19,36 @@ class CustomTextField extends StatelessWidget {
     required this.labelText,
     this.hintText,
     this.prefixIcon,
+    this.suffixIcon,
     this.obscureText = false,
     this.validator,
     this.errorText,
+    this.keyboardType,
+    this.maxLines,
+    this.minLines,
   });
 
+  static final inputDecoration = InputDecoration(
+    hintStyle: const TextStyle(color: Colors.grey, fontSize: 16.0),
+    contentPadding:
+        const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16.0),
+      borderSide: const BorderSide(color: Colors.grey, width: 2.0),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16.0),
+      borderSide: const BorderSide(color: Color(0xFF354259), width: 2.0),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16.0),
+      borderSide: const BorderSide(color: Colors.grey, width: 2.0),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16.0),
+      borderSide: const BorderSide(color: Colors.grey, width: 2.0),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +63,9 @@ class CustomTextField extends StatelessWidget {
           controller: controller,
           obscureText: obscureText,
           obscuringCharacter: '*',
+          keyboardType: keyboardType,
+          maxLines: obscureText ? 1 : maxLines,
+          minLines: minLines,
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'This field must not be empty';
@@ -43,32 +75,14 @@ class CustomTextField extends StatelessWidget {
             }
             return null;
           },
-          decoration: InputDecoration(
+          decoration: inputDecoration.copyWith(
             errorText: errorText,
             errorMaxLines: 2,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
             prefixIcon: prefixIcon,
             prefixIconColor: Colors.grey[400]!,
+            suffixIcon: suffixIcon,
+            suffixIconColor: Colors.grey[400]!,
             hintText: hintText,
-            hintStyle: const TextStyle(color: Colors.grey, fontSize: 16.0),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.0),
-              borderSide: const BorderSide(color: Colors.grey, width: 2.0),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.0),
-              borderSide:
-                  const BorderSide(color: Color(0xFF354259), width: 2.0),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.0),
-              borderSide: const BorderSide(color: Colors.grey, width: 2.0),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.0),
-              borderSide: const BorderSide(color: Colors.grey, width: 2.0),
-            ),
           ),
         ),
       ],

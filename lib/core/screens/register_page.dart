@@ -2,6 +2,7 @@ import 'package:bukoo/core/config.dart';
 import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:bukoo/core/widgets/loading_layer.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 
 import 'package:bukoo/core/screens/login_page.dart';
@@ -25,16 +26,23 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   static const HEIGHT_ON_TOP = 200.0;
+  final genderOptions = ["male", "female"];
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _username = TextEditingController();
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _passwordConfirmation = TextEditingController();
+  final TextEditingController _fullname = TextEditingController();
+  final TextEditingController _dateOfBirth = TextEditingController();
+  String? _gender = "male";
   String? _usernameErrorText;
   String? _emailErrorText;
   String? _passwordErrorText;
   String? _passwordConfirmationErrorText;
+  String? _fullNameErrorText;
+  String? _genderErrorText;
+  String? _dateOfBirthErrorText;
 
   Roles? selectedRole;
   int _currentStep = 0;
@@ -42,14 +50,6 @@ class _RegisterPageState extends State<RegisterPage> {
   CookieRequest? request;
 
   void _nextStep() {
-    if (selectedRole == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select your role'),
-        ),
-      );
-      return;
-    }
     setState(() {
       _currentStep++;
     });
@@ -67,6 +67,8 @@ class _RegisterPageState extends State<RegisterPage> {
         return _buildFirstStep();
       case 1:
         return _buildSecondStep();
+      case 2:
+        return _buildThirdStep();
       default:
         return const Placeholder();
     }
@@ -130,7 +132,7 @@ class _RegisterPageState extends State<RegisterPage> {
               "Registration",
               style: TextStyle(fontSize: 36, fontWeight: FontWeight.w600),
             ),
-            Text("1/2")
+            Text("1/3")
           ],
         ),
         const SizedBox(height: 24.0),
@@ -191,7 +193,19 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
         ),
         const SizedBox(height: 48.0),
-        PrimaryButton(onPressed: _nextStep, child: const Text('Next')),
+        PrimaryButton(
+            onPressed: () {
+              if (selectedRole == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please select your role'),
+                  ),
+                );
+                return;
+              }
+              _nextStep();
+            },
+            child: const Text('Next')),
         const SizedBox(height: 24.0),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -228,7 +242,7 @@ class _RegisterPageState extends State<RegisterPage> {
               "Registration",
               style: TextStyle(fontSize: 36, fontWeight: FontWeight.w600),
             ),
-            Text("2/2")
+            Text("2/3")
           ],
         ),
         const SizedBox(height: 24.0),
@@ -264,6 +278,104 @@ class _RegisterPageState extends State<RegisterPage> {
           errorText: _passwordConfirmationErrorText,
         ),
         const SizedBox(height: 24.0),
+        PrimaryButton(onPressed: _nextStep, child: const Text('Next')),
+        const SizedBox(height: 24.0),
+        SecondaryButton(onPressed: _prevStep, child: const Text('Back')),
+        const SizedBox(height: 24.0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Don\'t have account yet?',
+                style: TextStyle(fontSize: 14.0)),
+            TextButton(
+              child: Text('Login',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.underline,
+                  )),
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, LoginPage.routeName);
+              },
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildThirdStep() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 64.0),
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Registration",
+              style: TextStyle(fontSize: 36, fontWeight: FontWeight.w600),
+            ),
+            Text("3/3")
+          ],
+        ),
+        const SizedBox(height: 24.0),
+        CustomTextField(
+          controller: _fullname,
+          labelText: "Full Name",
+          prefixIcon: const Icon(CustomIcon.profile),
+          hintText: "Your Full Name",
+          errorText: _fullNameErrorText,
+        ),
+        const SizedBox(height: 24.0),
+        DropdownButton<String>(
+          hint: const Text("Select gender"),
+          value: _gender,
+          onChanged: (String? newValue) {
+            setState(() {
+              _gender = newValue;
+            });
+          },
+          items: genderOptions.map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 24.0),
+        CustomTextField(
+          controller: _dateOfBirth,
+          labelText: 'Date of Birth',
+          hintText: '2000-12-31',
+          keyboardType: TextInputType.datetime,
+          validator: (value) {
+            try {
+              DateFormat('yyyy-MM-dd').parseStrict(value!);
+              return null;
+            } catch (e) {
+              return 'The format must be yyyy-MM-dd';
+            }
+          },
+          suffixIcon: InkWell(
+              onTap: () async {
+                FocusScope.of(context).requestFocus(FocusNode());
+                final DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(1900),
+                  lastDate: DateTime.now(),
+                );
+                if (pickedDate != null) {
+                  String formattedDate =
+                      DateFormat('yyyy-MM-dd').format(pickedDate);
+                  _dateOfBirth.text = formattedDate;
+                }
+              },
+              child: const Icon(Icons.calendar_month_outlined)),
+        ),
+        const SizedBox(height: 24.0),
         PrimaryButton(onPressed: _onSubmit, child: const Text('Submit')),
         const SizedBox(height: 24.0),
         SecondaryButton(onPressed: _prevStep, child: const Text('Back')),
@@ -281,7 +393,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     fontWeight: FontWeight.w600,
                     decoration: TextDecoration.underline,
                   )),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, LoginPage.routeName);
+              },
             ),
           ],
         ),
@@ -303,6 +417,9 @@ class _RegisterPageState extends State<RegisterPage> {
         'password2': _passwordConfirmation.text,
         'is_author': selectedRole == Roles.author ? 'true' : 'false',
         'is_admin': selectedRole == Roles.admin ? 'true' : 'false',
+        'name': _fullname.text,
+        'gender': _gender,
+        'date_of_birth': _dateOfBirth.text,
       };
 
       final response =
@@ -334,6 +451,21 @@ class _RegisterPageState extends State<RegisterPage> {
         if (message.containsKey('password2')) {
           setState(() {
             _passwordConfirmationErrorText = message['password2'][0];
+          });
+        }
+        if (message.containsKey('name')) {
+          setState(() {
+            _fullNameErrorText = message['name'][0];
+          });
+        }
+        if (message.containsKey('gender')) {
+          setState(() {
+            _fullNameErrorText = message['gender'][0];
+          });
+        }
+        if (message.containsKey('date_of_birth')) {
+          setState(() {
+            _fullNameErrorText = message['date_of_birth'][0];
           });
         }
       }
