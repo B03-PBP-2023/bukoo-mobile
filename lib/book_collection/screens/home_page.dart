@@ -20,202 +20,236 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final GlobalKey _searchBarKey = GlobalKey();
+  Map<String, List<Book>>? _books;
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  Future<Map<String, List<Book>>> fetchBooks() async {
+    final request = Provider.of<CookieRequest>(context, listen: false);
+    final response = await request.get("$BASE_URL/api/book/home/");
+    final recommendation = response['recommendation']
+        .map<Book>((book) => Book.fromJsonPreview(book))
+        .toList();
+    final newReleases = response['new_releases']
+        .map<Book>((book) => Book.fromJsonPreview(book))
+        .toList();
+    final indonesian = response['indonesian']
+        .map<Book>((book) => Book.fromJsonPreview(book))
+        .toList();
+    final english = response['english']
+        .map<Book>((book) => Book.fromJsonPreview(book))
+        .toList();
+    final fiction = response['fiction']
+        .map<Book>((book) => Book.fromJsonPreview(book))
+        .toList();
+
+    return {
+      'recommendation': recommendation,
+      'new_releases': newReleases,
+      'indonesian': indonesian,
+      'english': english,
+      'fiction': fiction,
+    };
+  }
+
+  Future<void> refreshBooks() async {
+    setState(() {
+      _books = null;
+      _isLoading = true;
+    });
+    try {
+      final books = await fetchBooks();
+      setState(() {
+        _books = books;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    refreshBooks().then((value) => null);
+  }
 
   @override
   Widget build(BuildContext context) {
     final user = context.watch<User>();
-    final request = context.watch<CookieRequest>();
-
-    Future<Map<String, List<Book>>> fetchBooks() async {
-      final response = await request.get("$BASE_URL/api/book/home/");
-      final recommendation = response['recommendation']
-          .map<Book>((book) => Book.fromJsonPreview(book))
-          .toList();
-      final newReleases = response['new_releases']
-          .map<Book>((book) => Book.fromJsonPreview(book))
-          .toList();
-      final indonesian = response['indonesian']
-          .map<Book>((book) => Book.fromJsonPreview(book))
-          .toList();
-      final english = response['english']
-          .map<Book>((book) => Book.fromJsonPreview(book))
-          .toList();
-      final fiction = response['fiction']
-          .map<Book>((book) => Book.fromJsonPreview(book))
-          .toList();
-
-      return {
-        'recommendation': recommendation,
-        'new_releases': newReleases,
-        'indonesian': indonesian,
-        'english': english,
-        'fiction': fiction,
-      };
-    }
 
     return Scaffold(
       drawer: const LeftDrawer(),
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: <Widget>[
-          SliverAppBar(
-            pinned: true,
-            stretch: true,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            expandedHeight: 200,
-            collapsedHeight: 80,
-            shape: const ContinuousRectangleBorder(
-                borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(480),
-                    bottomRight: Radius.circular(480))),
-            onStretchTrigger: () async {
-              print('Refreshed!');
-            },
-            flexibleSpace: Stack(
-              children: [
-                FlexibleSpaceBar(
-                  collapseMode: CollapseMode.pin,
-                  background: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      const Image(
-                        image: AssetImage('assets/logo.png'),
-                        width: 180,
-                        fit: BoxFit.cover,
+      body: RefreshIndicator(
+        onRefresh: refreshBooks,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              stretch: true,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              expandedHeight: 200,
+              collapsedHeight: 80,
+              shape: const ContinuousRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(480),
+                      bottomRight: Radius.circular(480))),
+              flexibleSpace: LayoutBuilder(builder: (context, boxConstraint) {
+                double percentExpanded =
+                    (boxConstraint.maxHeight - kToolbarHeight) /
+                        (200.0 - kToolbarHeight);
+                return Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    FlexibleSpaceBar(
+                      collapseMode: CollapseMode.pin,
+                      background: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          const Image(
+                            image: AssetImage('assets/logo.png'),
+                            width: 180,
+                            fit: BoxFit.cover,
+                          ),
+                          const Text(
+                            "Read More, Discover More, Be More.",
+                            style: TextStyle(fontSize: 12),
+                          ),
+                          const SizedBox(height: 16.0),
+                          Text(
+                            user.username != null
+                                ? 'Hi ${user.name}!'
+                                : 'Welcome!',
+                            style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.secondary),
+                          ),
+                          const SizedBox(height: 64.0),
+                        ],
                       ),
-                      const Text(
-                        "Read More, Discover More, Be More.",
-                        style: TextStyle(fontSize: 12),
+                    ),
+                    Positioned(
+                      bottom: 16.0 * (1 - percentExpanded) + 4,
+                      left: 0.0,
+                      right: 0.0,
+                      child: Container(
+                        alignment: Alignment.bottomCenter,
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width * 3 / 4,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => const SearchPage()));
+                            },
+                            child: AbsorbPointer(
+                              child: Hero(
+                                tag: 'searchBar',
+                                child: SearchBar(
+                                  trailing: const [Icon(Icons.search)],
+                                  padding: MaterialStateProperty.all<
+                                          EdgeInsetsGeometry>(
+                                      const EdgeInsets.symmetric(
+                                          horizontal: 16.0)),
+                                  surfaceTintColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Colors.white),
+                                  hintText: 'Search by Title, Author, or ISBN',
+                                  textStyle:
+                                      MaterialStateProperty.all<TextStyle>(
+                                          const TextStyle(fontSize: 14.0)),
+                                  hintStyle: MaterialStateProperty.all<
+                                          TextStyle>(
+                                      const TextStyle(color: Colors.black26)),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 16.0),
-                      Text(
-                        user.username != null ? 'Hi ${user.name}!' : 'Welcome!',
-                        style: const TextStyle(
-                            fontSize: 28, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 64.0),
-                    ],
+                    )
+                  ],
+                );
+              }),
+            ),
+            // const _HomePageBody()
+            if (_books != null)
+              SliverList(
+                  delegate: SliverChildListDelegate([
+                ScrollableCardsWrapper(
+                  title: 'Recommendation',
+                  bookCards: _books!['recommendation']!
+                      .map((book) => BookCard(
+                          bookId: book.id!,
+                          title: book.title!,
+                          author: book.authors![0],
+                          imageUrl: book.imageUrl!))
+                      .toList(),
+                ),
+                ScrollableCardsWrapper(
+                  title: 'New Releases',
+                  bookCards: _books!['new_releases']!
+                      .map((book) => BookCard(
+                          bookId: book.id!,
+                          title: book.title!,
+                          author: book.authors!.join(', '),
+                          imageUrl: book.imageUrl ?? BookCoverDefault))
+                      .toList(),
+                ),
+                ScrollableCardsWrapper(
+                  title: 'Bahasa Indonesia',
+                  bookCards: _books!['indonesian']!
+                      .map((book) => BookCard(
+                          bookId: book.id!,
+                          title: book.title!,
+                          author: book.authors![0],
+                          imageUrl: book.imageUrl!))
+                      .toList(),
+                ),
+                ScrollableCardsWrapper(
+                  title: 'English',
+                  bookCards: _books!['english']!
+                      .map((book) => BookCard(
+                          bookId: book.id!,
+                          title: book.title!,
+                          author: book.authors![0],
+                          imageUrl: book.imageUrl!))
+                      .toList(),
+                ),
+                ScrollableCardsWrapper(
+                  title: 'Fiction',
+                  bookCards: _books!['fiction']!
+                      .map((book) => BookCard(
+                          bookId: book.id!,
+                          title: book.title!,
+                          author: book.authors![0],
+                          imageUrl: book.imageUrl!))
+                      .toList(),
+                ),
+              ]))
+            else if (_isLoading)
+              const SliverFillRemaining(
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else if (_errorMessage != null)
+              SliverFillRemaining(
+                child: Center(
+                  child: Text(
+                    _errorMessage!,
+                    style: TextStyle(
+                        fontSize: 16.0,
+                        color: Theme.of(context).colorScheme.secondary),
                   ),
                 ),
-                Container(
-                  alignment: Alignment.bottomCenter,
-                  // padding: EdgeInsets.only(bottom: 16),
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 3 / 4,
-                    child: Hero(
-                      tag: 'searchBar',
-                      child: SearchBar(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            PageRouteBuilder(
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      const SearchPage(),
-                              transitionDuration: const Duration(
-                                  milliseconds:
-                                      300), // Customize transition duration here
-                              transitionsBuilder: (context, animation,
-                                  secondaryAnimation, child) {
-                                return FadeTransition(
-                                  opacity: animation,
-                                  child: child,
-                                );
-                              },
-                            ),
-                          );
-                        },
-                        key: _searchBarKey,
-                        trailing: const [Icon(Icons.search)],
-                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                            const EdgeInsets.symmetric(horizontal: 16.0)),
-                        surfaceTintColor:
-                            MaterialStateProperty.all<Color>(Colors.white),
-                        hintText: 'Search by Title, Author, or ISBN',
-                        textStyle: MaterialStateProperty.all<TextStyle>(
-                            const TextStyle(fontSize: 14.0)),
-                        hintStyle: MaterialStateProperty.all<TextStyle>(
-                            const TextStyle(color: Colors.black26)),
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-          // const _HomePageBody()
-          FutureBuilder(
-              future: fetchBooks(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return SliverList(
-                      delegate: SliverChildListDelegate([
-                    ScrollableCardsWrapper(
-                      title: 'Recommendation',
-                      bookCards: snapshot.data!['recommendation']!
-                          .map((book) => BookCard(
-                              bookId: book.id!,
-                              title: book.title!,
-                              author: book.authors![0],
-                              imageUrl: book.imageUrl!))
-                          .toList(),
-                    ),
-                    ScrollableCardsWrapper(
-                      title: 'New Releases',
-                      bookCards: snapshot.data!['new_releases']!
-                          .map((book) => BookCard(
-                              bookId: book.id!,
-                              title: book.title!,
-                              author: book.authors!.join(', '),
-                              imageUrl: book.imageUrl ?? BookCoverDefault))
-                          .toList(),
-                    ),
-                    ScrollableCardsWrapper(
-                      title: 'Bahasa Indonesia',
-                      bookCards: snapshot.data!['indonesian']!
-                          .map((book) => BookCard(
-                              bookId: book.id!,
-                              title: book.title!,
-                              author: book.authors![0],
-                              imageUrl: book.imageUrl!))
-                          .toList(),
-                    ),
-                    ScrollableCardsWrapper(
-                      title: 'English',
-                      bookCards: snapshot.data!['english']!
-                          .map((book) => BookCard(
-                              bookId: book.id!,
-                              title: book.title!,
-                              author: book.authors![0],
-                              imageUrl: book.imageUrl!))
-                          .toList(),
-                    ),
-                    ScrollableCardsWrapper(
-                      title: 'Fiction',
-                      bookCards: snapshot.data!['fiction']!
-                          .map((book) => BookCard(
-                              bookId: book.id!,
-                              title: book.title!,
-                              author: book.authors![0],
-                              imageUrl: book.imageUrl!))
-                          .toList(),
-                    ),
-                  ]));
-                } else if (snapshot.hasError) {
-                  return SliverFillRemaining(
-                    child: Center(
-                      child: Text('${snapshot.error}'),
-                    ),
-                  );
-                } else {
-                  return const SliverFillRemaining(
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-              }),
-        ],
+              )
+          ],
+        ),
       ),
     );
   }
