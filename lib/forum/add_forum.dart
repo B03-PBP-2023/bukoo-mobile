@@ -1,15 +1,20 @@
 // ignore_for_file: use_build_context_synchronously, prefer_final_fields
 
+import 'package:bukoo/book_collection/models/book.dart';
 import 'package:bukoo/core/config.dart';
+import 'package:bukoo/core/widgets/custom_text_field.dart';
+import 'package:bukoo/core/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
+import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
+import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:bukoo/forum/models/forum_model.dart';
 
 class ForumFormPage extends StatefulWidget {
-  final int bookId;
-  const ForumFormPage({super.key, required this.bookId});
+  final Book book;
+  const ForumFormPage({super.key, required this.book});
 
   @override
   State<ForumFormPage> createState() => _ForumFormPageState();
@@ -22,386 +27,104 @@ class _ForumFormPageState extends State<ForumFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.primary,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
         title: const Center(
-          child: Text(
-            'Forum Discussion',
-            style: TextStyle(
-                color: Colors.black,
-                fontSize: 18,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.w600,
-                height: 0.07),
-          ),
+          child: Text('Create New Discussion',
+              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
         ),
-        backgroundColor: Colors.purple,
-        foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          width: 390,
-          height: 844,
-          clipBehavior: Clip.antiAlias,
-          decoration: const BoxDecoration(color: Color(0xFFADC4CE)),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(
+                widget.book.title!,
+                style: const TextStyle(
+                    fontSize: 18.0, fontWeight: FontWeight.bold),
+              ),
+              Text(widget.book.authors!.join(', ')),
+              const SizedBox(height: 16),
               Container(
-                width: 390,
-                height: 88,
-                decoration: ShapeDecoration(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  shadows: const [
-                    BoxShadow(
-                      color: Color(0x3F000000),
-                      blurRadius: 7.20,
-                      offset: Offset(0, 3),
-                      spreadRadius: 0,
-                    )
-                  ],
-                ),
-              ),
-              const SizedBox(
-                width: 248,
-                height: 29,
-                child: Text(
-                  'Forum Discussion',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w600,
-                    height: 0.07,
-                  ),
-                ),
-              ),
-              Container(
-                width: 342,
-                height: 475,
-                decoration: ShapeDecoration(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  shadows: const [
-                    BoxShadow(
-                      color: Color(0x3F000000),
-                      blurRadius: 45.50,
-                      offset: Offset(10, 21),
-                      spreadRadius: -22,
-                    )
-                  ],
-                ),
-              ),
-              const SizedBox(
-                width: 89,
-                height: 19,
-                child: Text(
-                  'Sofita',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w300,
-                    height: 0.05,
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 320,
-                height: 373,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      height: 410,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: double.infinity,
-                            height: 410,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Form(
-                                  key: _formKey,
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                      hintText: "Write here ...",
-                                      labelText: "Write here ...",
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                    onChanged: (String value) {
-                                      setState(() {
-                                        _description = value;
-                                      });
-                                    },
-                                    validator: (String? value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "Field tidak boleh kosong!";
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 30, vertical: 10),
-                                  clipBehavior: Clip.antiAlias,
-                                  decoration: ShapeDecoration(
-                                    color: const Color(0xFFF2F2F2),
-                                    shape: RoundedRectangleBorder(
-                                      side: const BorderSide(
-                                          width: 1, color: Color(0xFFCFD4DC)),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    shadows: const [
-                                      BoxShadow(
-                                        color: Color(0x0C101828),
-                                        blurRadius: 2,
-                                        offset: Offset(0, 1),
-                                        spreadRadius: 0,
-                                      )
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Expanded(
-                                        child: SizedBox(
-                                          height: 24,
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Expanded(
-                                                child: SizedBox(
-                                                  child: Text(
-                                                    _description,
-                                                    style: const TextStyle(
-                                                      color: Color(0xFFADC4CE),
-                                                      fontSize: 16,
-                                                      fontFamily: 'Inter',
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      height: 0.09,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24)),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextFormField(
+                        decoration: CustomTextField.inputDecoration.copyWith(
+                          hintText: "Subject",
+                        ),
+                        onChanged: (String? value) {
+                          setState(() {
+                            _subject = value!;
+                          });
+                        },
+                        validator: validateInput,
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                width: 24,
-                height: 138,
-                child: Stack(children: []),
-              ),
-              SizedBox(
-                height: 70,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      height: 70,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: double.infinity,
-                            height: 70,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Hi! Reply the discussion!',
-                                  style: TextStyle(
-                                    color: Color(0xFF344053),
-                                    fontSize: 14,
-                                    fontFamily: 'Inter',
-                                    fontWeight: FontWeight.w500,
-                                    height: 0.10,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 14, vertical: 10),
-                                  clipBehavior: Clip.antiAlias,
-                                  decoration: ShapeDecoration(
-                                    color: const Color(0xFFF2F2F2),
-                                    shape: RoundedRectangleBorder(
-                                      side: const BorderSide(
-                                          width: 1, color: Color(0xFFCFD4DC)),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    shadows: const [
-                                      BoxShadow(
-                                        color: Color(0x0C101828),
-                                        blurRadius: 2,
-                                        offset: Offset(0, 1),
-                                        spreadRadius: 0,
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Expanded(
-                                        child: SizedBox(
-                                          height: 24,
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              TextFormField(
-                                                decoration: InputDecoration(
-                                                  hintText:
-                                                      "Write your reply here ...",
-                                                  labelText:
-                                                      "Write your reply here ...",
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                  ),
-                                                ),
-                                                onChanged: (String value) {
-                                                  setState(() {});
-                                                },
-                                                validator: (String? value) {
-                                                  if (value == null ||
-                                                      value.isEmpty) {
-                                                    return "Field tidak boleh kosong!";
-                                                  }
-                                                  return null;
-                                                },
-                                              ),
-
-                                              // Tombol untuk mengirim balasan
-                                              ElevatedButton(
-                                                onPressed: () async {},
-                                                child: const Text(
-                                                  "Send Reply",
-                                                  style: TextStyle(
-                                                      color: Colors.white),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        decoration: CustomTextField.inputDecoration.copyWith(
+                          hintText: "Description",
+                        ),
+                        minLines: 5,
+                        maxLines: 10,
+                        onChanged: (String? value) {
+                          setState(() {
+                            _description = value!;
+                          });
+                        },
+                        validator: validateInput,
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      PrimaryButton(
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            final response = await postItem(request);
+                            if (response == 'success') {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("New item has been saved!"),
+                                ),
+                              );
+                              Navigator.pop(
+                                  context); // Kembali ke halaman sebelumnya
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("ERROR, please try again!"),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        child: const Text(
+                          "Save",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(
-                width: 32,
-                height: 32,
-                child: Stack(children: []),
               ),
             ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: ElevatedButton(
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Colors.purple),
-            ),
-            onPressed: () async {
-              if (_formKey.currentState!.validate()) {
-                // Validasi sukses, lakukan operasi async di sini
-                final response = await postForum();
-                if (response == 'success') {
-                  // Tampilkan pesan sukses
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Forum post has been created!"),
-                    ),
-                  );
-                } else {
-                  // Tampilkan pesan error
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("ERROR, please try again!"),
-                    ),
-                  );
-                }
-              }
-            },
-            child: const Text(
-              "Create Post",
-              style: TextStyle(color: Colors.white),
-            ),
           ),
         ),
       ),
     );
   }
 
-  // Fungsi untuk validasi input
   String? validateInput(String? value) {
     if (value == null || value.isEmpty) {
       return "Field tidak boleh kosong!";
@@ -409,15 +132,15 @@ class _ForumFormPageState extends State<ForumFormPage> {
     return null;
   }
 
-  // Fungsi untuk mengirim forum post ke server
-  Future<String> postForum() async {
-    final request = Provider.of<CookieRequest>(context, listen: false);
-
+  Future<String> postItem(CookieRequest request) async {
     try {
-      // Kirim data forum ke server atau penyimpanan di sini
-      final forum = Forum(subject: _subject, description: _description);
       final response = await request.postJson(
-          "$BASE_URL/create-forum-flutter/", jsonEncode(forum.toJson()));
+        "$BASE_URL/api/forum/create-forum-ajax/${widget.book.id}/",
+        jsonEncode({
+          'subject': _subject,
+          'description': _description,
+        }),
+      );
       return response['status'];
     } catch (e) {
       return 'error';

@@ -15,6 +15,8 @@ import 'package:bukoo/forum/models/forum_model.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:bukoo/forum/add_forum.dart';
+import 'package:http/http.dart' as http;
 
 class ForumPage extends StatefulWidget {
   final int bookId;
@@ -27,8 +29,72 @@ class ForumPage extends StatefulWidget {
 class _ForumPageState extends State<ForumPage> {
   Map<String, List<Reply>> forumReplies = {};
   Map<String, TextEditingController> replyControllers = {};
+  ForumResponseModel? _forumResponseModel;
+  bool _isLoading = false;
+  String? _error;
 
-  Future<ForumResponseModel> fetchForums(CookieRequest request) async {
+  @override
+  void initState() {
+    super.initState();
+    refreshForums();
+  }
+
+  void refreshForums() async {
+    setState(() {
+      _isLoading = true;
+      _forumResponseModel = null;
+      _error = null;
+    });
+    try {
+      var forumResponseModel = await fetchForums();
+      setState(() {
+        _forumResponseModel = forumResponseModel;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _error = e.toString();
+      });
+    }
+  }
+
+  Future<void> deleteForum(int forumId) async {
+    setState(() {
+      _isLoading = true;
+      _forumResponseModel = null;
+    });
+
+    try {
+      final request = context.read<CookieRequest>();
+      final response = await request.post(
+        '$BASE_URL/delete-forum-flutter/$forumId/',
+        {},
+      );
+
+      if (response['status'] == 'success') {
+        // Forum deletion was successful, refresh the forums
+        refreshForums();
+        setState(() {
+          _isLoading = false;
+        });
+      } else {
+        // Forum deletion failed, handle the error
+        setState(() {
+          _isLoading = false;
+          _error = 'Failed to delete forum: ${response.statusCode}';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _error = e.toString();
+      });
+    }
+  }
+
+  Future<ForumResponseModel> fetchForums() async {
+    final request = context.read<CookieRequest>();
     var response =
         await request.get('$BASE_URL/api/forum/get-forum/${widget.bookId}/');
 
@@ -41,6 +107,7 @@ class _ForumPageState extends State<ForumPage> {
     // Melakukan konversi data json menjadi object Book
     var bookJson = response['book'];
     Book book = Book(
+        id: bookJson['id'],
         title: bookJson['title'],
         authors: bookJson['author']
             .map<String>((author) => author as String)
@@ -49,7 +116,8 @@ class _ForumPageState extends State<ForumPage> {
     return ForumResponseModel(forums: listForums, book: book);
   }
 
-  Future<List<Reply>> fetchReplies(CookieRequest request, int forumId) async {
+  Future<List<Reply>> fetchReplies(int forumId) async {
+    final request = context.read<CookieRequest>();
     var response = await request.get('$BASE_URL/api/forum/get-reply/$forumId/');
 
     // Melakukan konversi data json menjadi object Reply
@@ -61,16 +129,16 @@ class _ForumPageState extends State<ForumPage> {
     return listReplies;
   }
 
-  void refreshReplies(CookieRequest request, int forumId) async {
-    var replies = await fetchReplies(request, forumId);
+  void refreshReplies(int forumId) async {
+    var replies = await fetchReplies(forumId);
     setState(() {
       replyControllers[forumId.toString()] = TextEditingController();
       forumReplies[forumId.toString()] = replies;
     });
   }
 
-  Future<Map<String, dynamic>> addReply(
-      CookieRequest request, int forumId) async {
+  Future<Map<String, dynamic>> addReply(int forumId) async {
+    final request = context.read<CookieRequest>();
     var response = await request.postJson(
         '$BASE_URL/api/forum/create-reply-ajax/$forumId/',
         jsonEncode({'message': replyControllers[forumId.toString()]!.text}));
@@ -82,7 +150,6 @@ class _ForumPageState extends State<ForumPage> {
     final request = context.watch<CookieRequest>();
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
-      drawer: const LeftDrawer(),
       appBar: AppBar(
           title: const Text(
             'Forum Discussion',
@@ -91,196 +158,240 @@ class _ForumPageState extends State<ForumPage> {
           backgroundColor: Colors.white,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
-          )),
-      body: FutureBuilder(
-        future: fetchForums(request),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                child: Column(children: [
-                  Text(
-                    snapshot.data!.book.title!,
-                    style: const TextStyle(
-                        fontSize: 18.0, fontWeight: FontWeight.bold),
-                  ),
-                  Text(snapshot.data!.book.authors!.join(', ')),
-                  const SizedBox(height: 24),
-                  PrimaryButton(
-                      onPressed: () {}, child: const Text('Create New Forum')),
-                  const SizedBox(height: 24),
-                  ...snapshot.data!.forums.map((forum) {
-                    return Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(16.0),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(24)),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 24,
-                                      backgroundImage: NetworkImage(
-                                          forum.user!.profilePic ??
-                                              ProfilePictureDefault),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Column(
-                                      children: [
-                                        Text(
-                                          forum.user!.name!,
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        Text(timeago.format(
-                                            forum.dateAdded!.toLocal())),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-                                Text(forum.subject,
-                                    style: const TextStyle(
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.bold)),
-                                const SizedBox(height: 8),
-                                Text(forum.description),
-                                const SizedBox(height: 8),
-                                TextButton(
+              borderRadius: BorderRadius.circular(16.0))),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          refreshForums();
+        },
+        child: Builder(
+          builder: (context) {
+            if (_isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (_error != null) {
+              return Center(child: Text(_error!));
+            } else if (_forumResponseModel != null) {
+              var book = _forumResponseModel!.book;
+              var forums = _forumResponseModel!.forums;
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SingleChildScrollView(
+                  child: Column(children: [
+                    Text(
+                      book.title!,
+                      style: const TextStyle(
+                          fontSize: 18.0, fontWeight: FontWeight.bold),
+                    ),
+                    Text(book.authors!.join(', ')),
+                    const SizedBox(height: 24),
+                    if (request.loggedIn) ...[
+                      PrimaryButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ForumFormPage(book: book)));
+                          },
+                          child: const Text('Create New Discussion')),
+                      const SizedBox(height: 24)
+                    ],
+                    ...forums.map((forum) {
+                      return Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24)),
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 24,
+                                        backgroundImage: NetworkImage(
+                                            forum.user!.profilePic ??
+                                                ProfilePictureDefault),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            forum.user!.name!,
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Text(timeago.format(
+                                              forum.dateAdded!.toLocal())),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(forum.subject,
+                                      style: const TextStyle(
+                                          fontSize: 18.0,
+                                          fontWeight: FontWeight.bold)),
+                                  const SizedBox(height: 8),
+                                  Text(forum.description),
+                                  const SizedBox(height: 8),
+                                  TextButton(
+                                      onPressed: () async {
+                                        if (forumReplies
+                                            .containsKey(forum.id.toString())) {
+                                          setState(() {
+                                            forumReplies
+                                                .remove(forum.id.toString());
+                                            replyControllers
+                                                .remove(forum.id.toString());
+                                          });
+                                        } else {
+                                          refreshReplies(forum.id!);
+                                        }
+                                      },
+                                      child: Row(
+                                        children: [
+                                          const Icon(CustomIcon.discussion),
+                                          const SizedBox(width: 8),
+                                          Text("${forum.totalReply} replies")
+                                        ],
+                                      )),
+                                  TextButton(
                                     onPressed: () async {
-                                      if (forumReplies
-                                          .containsKey(forum.id.toString())) {
-                                        setState(() {
-                                          forumReplies
-                                              .remove(forum.id.toString());
-                                          replyControllers
-                                              .remove(forum.id.toString());
-                                        });
-                                      } else {
-                                        refreshReplies(request, forum.id!);
-                                      }
+                                      await deleteForum(forum.id!);
                                     },
                                     child: Row(
                                       children: [
-                                        const Icon(CustomIcon.discussion),
+                                        const Icon(Icons.delete),
                                         const SizedBox(width: 8),
-                                        Text("${forum.totalReply} replies")
+                                        Text("Delete Forum"),
                                       ],
-                                    ))
-                              ]),
-                        ),
-                        const SizedBox(height: 16),
-                        if (forumReplies.containsKey(forum.id.toString()))
-                          Padding(
-                              padding: const EdgeInsets.only(left: 32.0),
-                              child: Column(children: [
-                                Container(
-                                    padding: const EdgeInsets.all(16.0),
-                                    decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(24)),
-                                    child: Column(
-                                      children: [
-                                        CustomTextField(
-                                          controller: replyControllers[
-                                              forum.id.toString()]!,
-                                          labelText: 'Add New Reply',
-                                          minLines: 3,
-                                          hintText: 'Type your reply here',
-                                        ),
-                                        const SizedBox(height: 8),
-                                        PrimaryButton(
-                                            onPressed: () async {
-                                              var response = await addReply(
-                                                  request, forum.id!);
-                                              if (response['status'] ==
-                                                  'success') {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(const SnackBar(
-                                                        content: Text(
-                                                            'Reply added')));
-                                                refreshReplies(
-                                                    request, forum.id!);
-                                              } else {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(const SnackBar(
-                                                        content: Text(
-                                                            'Failed to add reply')));
-                                              }
-                                            },
-                                            child: const Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text('Reply'),
-                                                SizedBox(width: 8),
-                                                Icon(Icons.send_rounded)
-                                              ],
-                                            ))
-                                      ],
-                                    )),
-                                const SizedBox(height: 16),
-                                ...forumReplies[forum.id.toString()]!
-                                    .expand((reply) {
-                                  return [
-                                    Container(
-                                      padding: const EdgeInsets.all(16.0),
-                                      decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(24)),
-                                      child: Column(children: [
-                                        Row(
-                                          children: [
-                                            CircleAvatar(
-                                              radius: 24,
-                                              backgroundImage: NetworkImage(
-                                                  reply.user!.profilePic ??
-                                                      ProfilePictureDefault),
-                                            ),
-                                            const SizedBox(width: 16),
-                                            Column(
-                                              children: [
-                                                Text(
-                                                  reply.user!.name!,
-                                                  style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                                Text(timeago.format(reply
-                                                    .createdAt!
-                                                    .toLocal())),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 16),
-                                        Text(reply.message),
-                                      ]),
                                     ),
+                                  )
+                                ]),
+                          ),
+                          const SizedBox(height: 16),
+                          if (forumReplies.containsKey(forum.id.toString()))
+                            Padding(
+                                padding: const EdgeInsets.only(left: 32.0),
+                                child: Column(children: [
+                                  if (request.loggedIn) ...[
+                                    Container(
+                                        padding: const EdgeInsets.all(16.0),
+                                        decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(24)),
+                                        child: Column(
+                                          children: [
+                                            CustomTextField(
+                                              controller: replyControllers[
+                                                  forum.id.toString()]!,
+                                              labelText: 'Add New Reply',
+                                              minLines: 3,
+                                              hintText: 'Type your reply here',
+                                            ),
+                                            const SizedBox(height: 8),
+                                            PrimaryButton(
+                                                onPressed: () async {
+                                                  var response =
+                                                      await addReply(forum.id!);
+                                                  if (response['status'] ==
+                                                      'success') {
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                            const SnackBar(
+                                                                content: Text(
+                                                                    'Reply added')));
+                                                    refreshReplies(forum.id!);
+                                                  } else {
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                            const SnackBar(
+                                                                content: Text(
+                                                                    'Failed to add reply')));
+                                                  }
+                                                },
+                                                child: const Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Text('Reply'),
+                                                    SizedBox(width: 8),
+                                                    Icon(Icons.send_rounded)
+                                                  ],
+                                                ))
+                                          ],
+                                        )),
                                     const SizedBox(height: 16)
-                                  ];
-                                })
-                              ]))
-                      ],
-                    );
-                  }),
-                ]),
-              ),
-            );
-          } else if (snapshot.hasError) {
-            return Center(child: Text("${snapshot.error}"));
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
+                                  ],
+                                  ...forumReplies[forum.id.toString()]!
+                                      .expand((reply) {
+                                    return [
+                                      Container(
+                                        padding: const EdgeInsets.all(16.0),
+                                        decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(24)),
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  CircleAvatar(
+                                                    radius: 24,
+                                                    backgroundImage:
+                                                        NetworkImage(reply.user!
+                                                                .profilePic ??
+                                                            ProfilePictureDefault),
+                                                  ),
+                                                  const SizedBox(width: 16),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        reply.user!.name!,
+                                                        style: const TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                      Text(timeago.format(reply
+                                                          .createdAt!
+                                                          .toLocal())),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 16),
+                                              Text(reply.message),
+                                            ]),
+                                      ),
+                                      const SizedBox(height: 16)
+                                    ];
+                                  })
+                                ]))
+                        ],
+                      );
+                    }),
+                  ]),
+                ),
+              );
+            } else {
+              return const SizedBox
+                  .shrink(); // Return an empty widget if none of the conditions are met
+            }
+          },
+        ),
       ),
     );
   }
