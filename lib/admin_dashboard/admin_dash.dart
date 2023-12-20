@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:bukoo/admin_dashboard/detail_admin.dart';
 import 'package:bukoo/core/widgets/left_drawer.dart';
 
-void main() => runApp(AdminDash());
+void main() => runApp(const AdminDash());
 
 class AdminDash extends StatelessWidget {
+  const AdminDash({super.key});
+
   @override
   Widget build(BuildContext context) {
     return DashboardPage(); // Kembalikan langsung DashboardPage
@@ -28,11 +30,13 @@ class DashboardPage extends StatelessWidget {
     // Tambahkan lebih banyak buku di sini
   ];
 
+  DashboardPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Admin Dashboard'),
+        title: const Text('Admin Dashboard'),
       ),
       drawer: const LeftDrawer(),
       body: SingleChildScrollView(
@@ -60,7 +64,7 @@ class DashboardPage extends StatelessWidget {
                       children: [
                         TextButton(
                           onPressed: () => _showBookDetail(book, context),
-                          child: Text('Detail'),
+                          child: const Text('Detail'),
                         ),
                       ],
                     )),
@@ -81,7 +85,7 @@ class DashboardPage extends StatelessWidget {
 
 Widget buildStatusWidget(String status) {
   if (status == 'Verified') {
-    return Container(
+    return SizedBox(
       width: 65,
       height: 30,
       child: Stack(
@@ -93,13 +97,13 @@ Widget buildStatusWidget(String status) {
               width: 65,
               height: 30,
               decoration: ShapeDecoration(
-                color: Color(0x7072D535),
+                color: const Color(0x7072D535),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
               ),
             ),
           ),
-          Positioned.fill(
+          const Positioned.fill(
             // Menggunakan Positioned.fill
             child: Align(
               // Menggunakan Align untuk pusatkan teks
