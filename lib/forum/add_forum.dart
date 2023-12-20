@@ -1,4 +1,9 @@
+// ignore_for_file: use_build_context_synchronously, prefer_final_fields
+
+import 'package:bukoo/book_collection/models/book.dart';
 import 'package:bukoo/core/config.dart';
+import 'package:bukoo/core/widgets/custom_text_field.dart';
+import 'package:bukoo/core/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -8,8 +13,8 @@ import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:bukoo/forum/models/forum_model.dart';
 
 class ForumFormPage extends StatefulWidget {
-  int bookId;
-  ForumFormPage({Key? key, required this.bookId}) : super(key: key);
+  final Book book;
+  const ForumFormPage({super.key, required this.book});
 
   @override
   State<ForumFormPage> createState() => _ForumFormPageState();
@@ -24,113 +29,92 @@ class _ForumFormPageState extends State<ForumFormPage> {
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.primary,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
         title: const Center(
-          child: Text(
-            'Create Forum Post',
-            style: TextStyle(color: Colors.white),
-          ),
+          child: Text('Create New Discussion',
+              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
         ),
-        backgroundColor: Colors.purple,
-        foregroundColor: Colors.white,
       ),
-      // Tambahkan widget form di sini
-      body: Form(
-        key: _formKey,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    hintText: "Subject",
-                    labelText: "Subject",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  onChanged: (String value) {
-                    setState(() {
-                      _subject = value;
-                    });
-                  },
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return "Subject tidak boleh kosong!";
-                    }
-                    return null;
-                  },
-                ),
+              Text(
+                widget.book.title!,
+                style: const TextStyle(
+                    fontSize: 18.0, fontWeight: FontWeight.bold),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    hintText: "Description",
-                    labelText: "Description",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  onChanged: (String value) {
-                    setState(() {
-                      _description = value;
-                    });
-                  },
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return "Description tidak boleh kosong!";
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Colors.purple),
-                    ),
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        // Kirim data forum ke server atau penyimpanan
-                        final forumPost = Forum(
-                          // Ganti ini dengan cara yang sesuai untuk membuat forum post
-                          subject: _subject,
-                          description: _description,
-                        );
-
-                        // Selanjutnya, Anda dapat mengirim forumPost ke server atau menyimpannya.
-                        // Anda dapat menggunakan kode berikut sebagai contoh:
-
-                        final response = await request.postJson(
-                            "$BASE_URL/api/forum/create-forum-ajax/${widget.bookId}/",
-                            jsonEncode(forumPost.toJson()));
-                        if (response['status'] == 'success') {
-                          print(response['status']);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Forum post has been created!"),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                  "ERROR, please try again!. Error: ${response['message']}"),
-                            ),
-                          );
-                        }
-                      }
-                    },
-                    child: const Text(
-                      "Create Post",
-                      style: TextStyle(color: Colors.white),
-                    ),
+              Text(widget.book.authors!.join(', ')),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24)),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextFormField(
+                        decoration: CustomTextField.inputDecoration.copyWith(
+                          hintText: "Subject",
+                        ),
+                        onChanged: (String? value) {
+                          setState(() {
+                            _subject = value!;
+                          });
+                        },
+                        validator: validateInput,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        decoration: CustomTextField.inputDecoration.copyWith(
+                          hintText: "Description",
+                        ),
+                        minLines: 5,
+                        maxLines: 10,
+                        onChanged: (String? value) {
+                          setState(() {
+                            _description = value!;
+                          });
+                        },
+                        validator: validateInput,
+                      ),
+                      const SizedBox(height: 16),
+                      PrimaryButton(
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            final response = await postItem(request);
+                            if (response == 'success') {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("New item has been saved!"),
+                                ),
+                              );
+                              Navigator.pop(
+                                  context); // Kembali ke halaman sebelumnya
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("ERROR, please try again!"),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        child: const Text(
+                          "Save",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -139,5 +123,27 @@ class _ForumFormPageState extends State<ForumFormPage> {
         ),
       ),
     );
+  }
+
+  String? validateInput(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Field tidak boleh kosong!";
+    }
+    return null;
+  }
+
+  Future<String> postItem(CookieRequest request) async {
+    try {
+      final response = await request.postJson(
+        "$BASE_URL/api/forum/create-forum-ajax/${widget.book.id}/",
+        jsonEncode({
+          'subject': _subject,
+          'description': _description,
+        }),
+      );
+      return response['status'];
+    } catch (e) {
+      return 'error';
+    }
   }
 }
