@@ -13,6 +13,7 @@ import 'book_collection/screens/home_page.dart';
 import 'package:bukoo/admin_dashboard/admin_dash.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bukoo/user_profile/screens/profile_page.dart';
 
 void main() {
   runApp(const App());
@@ -63,6 +64,7 @@ class App extends StatelessWidget {
           AdminDash.routeName: (context) => AdminDash(),
           BookSubmissionPage.routeName: (context) => BookSubmissionPage(),
           SearchPage.routeName: (context) => SearchPage(),
+          ProfilePage.routeName: (context) => ProfilePage(),
         },
       ),
     );
