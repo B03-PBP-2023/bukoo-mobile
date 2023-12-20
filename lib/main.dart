@@ -1,5 +1,5 @@
-import 'package:bukoo/book_collection/models/book.dart';
-import 'package:bukoo/book_collection/screens/book_detail_page.dart';
+import 'package:bukoo/book_collection/screens/book_submission_page.dart';
+import 'package:bukoo/book_collection/screens/search_page.dart';
 import 'package:bukoo/core/models/user.dart';
 import 'package:bukoo/core/screens/login_page.dart';
 import 'package:bukoo/core/screens/register_page.dart';
@@ -8,6 +8,10 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'book_collection/screens/home_page.dart';
+import 'package:bukoo/admin_dashboard/admin_dash.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bukoo/user_profile/screens/reader_profile.dart';
 
 void main() {
   runApp(const App());
@@ -26,11 +30,17 @@ class App extends StatelessWidget {
             return request;
           },
         ),
-        Provider<User>(
-          create: (_) {
-            User user = User();
-            return user;
+        FutureProvider<User>(
+          create: (_) async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            String? userJson = prefs.getString('user');
+            if (userJson != null) {
+              User user = User.fromJson(jsonDecode(userJson));
+              return user;
+            }
+            return User();
           },
+          initialData: User(),
         ),
       ],
       child: MaterialApp(
@@ -46,8 +56,10 @@ class App extends StatelessWidget {
         initialRoute: HomePage.routeName,
         routes: {
           HomePage.routeName: (context) => HomePage(),
+          '/admin_dashboard': (context) => AdminDash(),
           LoginPage.routeName: (context) => LoginPage(),
           RegisterPage.routeName: (context) => RegisterPage(),
+          /* ReaderProfile.routeName: (context) => ReaderProfilePage(), */
         },
       ),
     );
