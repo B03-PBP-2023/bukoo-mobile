@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names, use_build_context_synchronously
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';

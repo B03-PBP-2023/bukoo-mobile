@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:bukoo/book_collection/screens/book_submission_page.dart';
 import 'package:bukoo/book_collection/screens/search_page.dart';
 import 'package:bukoo/core/models/user.dart';
@@ -41,6 +43,7 @@ class App extends StatelessWidget {
         FutureProvider<User>(
           create: (_) async {
             SharedPreferences prefs = await SharedPreferences.getInstance();
+            final request = _.watch<CookieRequest>();
             String? userJson = prefs.getString('user');
             if (userJson != null) {
               User user = User.fromJson(jsonDecode(userJson));

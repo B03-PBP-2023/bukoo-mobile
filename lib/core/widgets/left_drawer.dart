@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:bukoo/core/etc/custom_icon_icons.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
@@ -17,14 +18,15 @@ class LeftDrawer extends StatelessWidget {
     final request = context.watch<CookieRequest>();
     final user = context.watch<User>();
 
-    void _onLogout() async {
+    void onLogout() async {
       {
         try {
           await request.logout("$BASE_URL/auth/logout/");
-        } catch (e) {
-          request.loggedIn = false;
-        } finally {
           user.resetUser();
+          // clear shared preferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.remove('user');
+        } finally {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Logout successful!'),
@@ -73,15 +75,6 @@ class LeftDrawer extends StatelessWidget {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 24.0),
-              child: ListTile(
-                leading: const Icon(CustomIcon.discussion),
-                title: const Text('Discussion Forum'),
-                onTap: () =>
-                    {Navigator.pushNamed(context, AdminDash.routeName)},
-              ),
-            ),
             Visibility(
               visible: request.loggedIn &&
                   (user.isAdmin == null ? false : user.isAdmin!),
@@ -91,7 +84,7 @@ class LeftDrawer extends StatelessWidget {
                     leading: const Icon(CustomIcon.admin_dashboard),
                     title: const Text('Admin Dashboard'),
                     onTap: () =>
-                        Navigator.pushNamed(context, '/admin_dashboard')),
+                        Navigator.pushNamed(context, AdminDash.routeName)),
               ),
             ),
             Visibility(
@@ -115,7 +108,7 @@ class LeftDrawer extends StatelessWidget {
                 child: ListTile(
                     leading: const Icon(Icons.logout),
                     title: const Text('Logout'),
-                    onTap: _onLogout),
+                    onTap: onLogout),
               ),
             ),
             Visibility(

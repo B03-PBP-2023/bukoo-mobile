@@ -118,7 +118,7 @@ Widget buildStatusWidget(String status) {
               ),
             ),
           ),
-          Positioned.fill(
+          const Positioned.fill(
             // Menggunakan Positioned.fill
             child: Align(
               // Menggunakan Align untuk pusatkan teks

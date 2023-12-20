@@ -1,14 +1,13 @@
-import 'package:bukoo/book_collection/dummy.dart';
 import 'package:bukoo/book_collection/models/book.dart';
 import 'package:bukoo/core/config.dart';
 import 'package:bukoo/core/etc/custom_icon_icons.dart';
-import 'package:bukoo/core/widgets/left_drawer.dart';
-import 'package:bukoo/core/widgets/loading_layer.dart';
 import 'package:bukoo/core/widgets/primary_button.dart';
 import 'package:bukoo/core/widgets/secondary_button.dart';
+import 'package:bukoo/forum/forum_page.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:bukoo/review/screens/screens_page.dart';
 
 class BookDetailPage extends StatefulWidget {
   final int bookId;
@@ -21,10 +20,28 @@ class BookDetailPage extends StatefulWidget {
 }
 
 class _BookDetailPageState extends State<BookDetailPage> {
-  static const HEIGHT_ON_TOP = 240.0;
+  static const heightOnTop = 240.0;
   static const aspectRation = 0.625;
 
   bool isDescriptionExpanded = false;
+  bool isBookmarked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final request = context.read<CookieRequest>();
+    if (!request.loggedIn) return;
+    refreshBookmarkStatus();
+  }
+
+  void refreshBookmarkStatus() async {
+    final request = context.read<CookieRequest>();
+    final response = await request
+        .get("$BASE_URL/api/profile/get-bookmark-status/${widget.bookId}/");
+    setState(() {
+      isBookmarked = response['data'];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,13 +56,48 @@ class _BookDetailPageState extends State<BookDetailPage> {
     }
 
     double getImageTop() {
-      return HEIGHT_ON_TOP - getImageHeight() / 2;
+      return heightOnTop - getImageHeight() / 2;
     }
 
     Future<Book> fetchBook() async {
       final response =
           await request.get("$BASE_URL/api/book/${widget.bookId}/");
       return Book.fromJsonDetail(response);
+    }
+
+    void onClickDiscussion(int bookId) {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => ForumPage(bookId: bookId)));
+    }
+
+    void addBoomark() async {
+      final response = await request
+          .post("$BASE_URL/api/profile/bookmark-book/${widget.bookId}/", {});
+      if (response['status'] == 'success') {
+        setState(() {
+          isBookmarked = true;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Book has been added to your bookmarks')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Failed to add book to your bookmarks')));
+      }
+    }
+
+    void deleteBookmark() async {
+      final response = await request
+          .post("$BASE_URL/api/profile/delete-bookmark/${widget.bookId}/", {});
+      if (response['status'] == 'success') {
+        setState(() {
+          isBookmarked = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Book has been removed from your bookmarks')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Failed to remove book from your bookmarks')));
+      }
     }
 
     return Scaffold(
@@ -72,7 +124,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                         Column(
                           children: [
                             const SizedBox(
-                              height: HEIGHT_ON_TOP,
+                              height: heightOnTop,
                             ),
                             Container(
                               decoration: const BoxDecoration(
@@ -83,7 +135,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                               ),
                               constraints: BoxConstraints(
                                 minHeight: MediaQuery.of(context).size.height -
-                                    HEIGHT_ON_TOP,
+                                    heightOnTop,
                               ),
                               width: MediaQuery.of(context).size.width,
                               child: Padding(
@@ -111,8 +163,43 @@ class _BookDetailPageState extends State<BookDetailPage> {
                                               .bodyMedium),
                                     ),
                                     const SizedBox(height: 16),
+                                    if (request.loggedIn) ...[
+                                      if (isBookmarked)
+                                        SecondaryButton(
+                                            onPressed: deleteBookmark,
+                                            child: const Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.bookmark),
+                                                SizedBox(width: 8),
+                                                Text('Remove from Bookmarks')
+                                              ],
+                                            ))
+                                      else
+                                        PrimaryButton(
+                                            onPressed: addBoomark,
+                                            child: const Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.bookmark_border),
+                                                SizedBox(width: 8),
+                                                Text('Add to Bookmarks')
+                                              ],
+                                            )),
+                                      const SizedBox(height: 16)
+                                    ],
                                     SecondaryButton(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ReviewPage(
+                                                          bookId: snapshot
+                                                              .data!.id!)));
+                                        },
                                         child: const Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
@@ -123,36 +210,20 @@ class _BookDetailPageState extends State<BookDetailPage> {
                                           ],
                                         )),
                                     const SizedBox(height: 16),
-                                    if (request.loggedIn)
-                                      Column(
-                                        children: [
-                                          PrimaryButton(
-                                              onPressed: () {},
-                                              child: const Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Icon(Icons.bookmark_border),
-                                                  SizedBox(width: 8),
-                                                  Text('Add to Bookmarks')
-                                                ],
-                                              )),
-                                          const SizedBox(height: 16),
-                                          PrimaryButton(
-                                              onPressed: () {},
-                                              child: const Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Icon(CustomIcon.discussion),
-                                                  SizedBox(width: 8),
-                                                  Text('Open Discussion')
-                                                ],
-                                              )),
-                                          const SizedBox(height: 16),
-                                        ],
-                                      ),
-
+                                    SecondaryButton(
+                                        onPressed: () {
+                                          onClickDiscussion(snapshot.data!.id!);
+                                        },
+                                        child: const Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(CustomIcon.discussion),
+                                            SizedBox(width: 8),
+                                            Text('Open Discussion')
+                                          ],
+                                        )),
+                                    const SizedBox(height: 16),
                                     const Text('Genres',
                                         style: TextStyle(
                                             fontSize: 16,
@@ -331,7 +402,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(16),
                                 child: Image.network(
-                                  snapshot.data!.imageUrl!,
+                                  snapshot.data!.imageUrl ?? BookCoverDefault,
                                   width: getImageWidth(),
                                   height: getImageHeight(),
                                   fit: BoxFit.cover,
