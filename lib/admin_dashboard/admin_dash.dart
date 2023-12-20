@@ -1,5 +1,6 @@
 import 'package:bukoo/admin_dashboard/models/book_submission.dart';
 import 'package:bukoo/admin_dashboard/models/dashboard_statisics.dart';
+import 'package:bukoo/admin_dashboard/widgets/statistic_card.dart';
 import 'package:bukoo/core/config.dart';
 import 'package:flutter/material.dart';
 import 'package:bukoo/admin_dashboard/detail_admin.dart';
@@ -96,52 +97,7 @@ class _DashboardPage extends State<AdminDash> {
                       childAspectRatio: 1.5,
                       crossAxisCount: 2,
                       children: _getDashboardStatistics(_bookSubmissions)
-                          .map((data) => Card(
-                                surfaceTintColor: Colors.transparent,
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16.0),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 16.0, horizontal: 8.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            data.icon!,
-                                            color: data.color,
-                                            size: 32.0,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            data.value.toString(),
-                                            style: TextStyle(
-                                              color: data.color,
-                                              fontSize: 32,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Text(
-                                        data.title,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontFamily: 'Poppins',
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ))
+                          .map((data) => StatisticCard(data: data))
                           .toList(),
                     ),
                   ),
