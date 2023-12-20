@@ -9,9 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:bukoo/core/etc/custom_icon_icons.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:bukoo/user_profile/screens/reader_profile.dart';
-import 'package:bukoo/user_profile/screens/author_profile.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
@@ -74,8 +72,7 @@ class LeftDrawer extends StatelessWidget {
                 child: ListTile(
                   leading: const Icon(CustomIcon.profile),
                   title: const Text('Profile'),
-                  onTap: () =>
-                      Navigator.pushNamed(context, ReaderProfile.routeName)
+                  onTap: () => {},
                 ),
               ),
             ),
