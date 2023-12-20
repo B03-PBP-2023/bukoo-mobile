@@ -1,7 +1,16 @@
 // ignore_for_file: library_private_types_in_public_api, avoid_print
 
+import 'dart:convert';
+
+import 'package:bukoo/admin_dashboard/admin_dash.dart';
 import 'package:bukoo/admin_dashboard/models/book_submission.dart';
+import 'package:bukoo/core/config.dart';
+import 'package:bukoo/core/widgets/custom_text_field.dart';
+import 'package:bukoo/core/widgets/loading_layer.dart';
+import 'package:bukoo/core/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class DetailAdminPage extends StatefulWidget {
   final BookSubmission bookSubmission; // Menerima objek buku
@@ -15,90 +24,147 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
   late String selectedStatus; // Variabel untuk status yang dipilih
   late String currentStatus; // Tambahkan definisi untuk currentStatus
   final TextEditingController _responseController = TextEditingController();
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
 
-    selectedStatus =
-        widget.bookSubmission.status; // Mengatur status awal dari buku
+    selectedStatus = widget.bookSubmission.status;
     currentStatus = selectedStatus;
+    _responseController.text = widget.bookSubmission.feedback ?? '';
+  }
+
+  void onSubmit() async {
+    setState(() {
+      isLoading = true;
+    });
+    final request = context.read<CookieRequest>();
+    final response = await request.postJson(
+      '$BASE_URL/api/admin-dashboard/edit/${widget.bookSubmission.id}/',
+      jsonEncode({
+        'status': selectedStatus,
+        'feedback': _responseController.text,
+      }),
+    );
+
+    if (response['status'] == 'success') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Book submission updated'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response['message']),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detail Buku'),
-      ),
-      backgroundColor: Color(0xFFADC4CE),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 330,
-                decoration: ShapeDecoration(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(23),
-                  ),
-                  shadows: const [
-                    BoxShadow(
-                      color: Color(0x3F000000),
-                      blurRadius: 7.20,
-                      offset: Offset(0, 3),
-                      spreadRadius: 0,
+          title: const Text('Admin Dashboard'),
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.0))),
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    decoration: ShapeDecoration(
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(23),
+                      ),
+                      shadows: const [
+                        BoxShadow(
+                          color: Color(0x3F000000),
+                          blurRadius: 7.20,
+                          offset: Offset(0, 3),
+                          spreadRadius: 0,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Title: ${widget.bookSubmission.book.title}"),
-                      Text(
-                          "Description: ${widget.bookSubmission.book.description}"),
-                      Text(
-                          "Genre: ${widget.bookSubmission.book.genres!.join(', ')}"),
-                      Text(
-                          "Publisher: ${widget.bookSubmission.book.publisher}"),
-                      Text("Language: ${widget.bookSubmission.book.language}"),
-                      Text("ISBN: ${widget.bookSubmission.book.isbn}"),
-                      Text(
-                          "Number of Pages: ${widget.bookSubmission.book.numPages}"),
-                      Text(
-                          "Publish Date: ${widget.bookSubmission.book.publishDate}"),
-                    ],
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Title: ${widget.bookSubmission.book.title}"),
+                          Text(
+                              "Description: ${widget.bookSubmission.book.description}"),
+                          Text(
+                              "Genre: ${widget.bookSubmission.book.genres!.join(', ')}"),
+                          Text(
+                              "Publisher: ${widget.bookSubmission.book.publisher}"),
+                          Text(
+                              "Language: ${widget.bookSubmission.book.language}"),
+                          Text("ISBN: ${widget.bookSubmission.book.isbn}"),
+                          Text(
+                              "Number of Pages: ${widget.bookSubmission.book.numPages}"),
+                          Text(
+                              "Publish Date: ${widget.bookSubmission.book.publishDate}"),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  Text('Status',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.secondary)),
+                  const SizedBox(height: 8),
+                  _customDropdown(context),
+                  const SizedBox(height: 16),
+                  Text('Response',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.secondary)),
+                  const SizedBox(height: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    child: TextFormField(
+                      controller: _responseController,
+                      decoration: CustomTextField.inputDecoration.copyWith(
+                        fillColor: Colors.white,
+                        hintText: 'Enter a response',
+                      ),
+                      maxLines: 3,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  PrimaryButton(
+                      onPressed: onSubmit,
+                      child: const Text(
+                          'Submit')), // Lanjutan kode untuk text field dan tombol send
+                ],
               ),
-              SizedBox(height: 20),
-              _customDropdown(context),
-              SizedBox(height: 10),
-              TextFormField(
-                controller: _responseController,
-                decoration: InputDecoration(
-                  labelText: 'Respons',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  // Logika untuk mengirim respons
-                  // Contoh: Menampilkan teks di konsol
-                  print('Response: ${_responseController.text}');
-                },
-                child: const Text('Send'),
-              ), // Lanjutan kode untuk text field dan tombol send
-            ],
+            ),
           ),
-        ),
+          LoadingLayer(isLoading: isLoading)
+        ],
       ),
     );
   }
@@ -107,8 +173,7 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
     return GestureDetector(
       onTap: () => _showCustomDropdown(context),
       child: Container(
-        width: 328,
-        height: 44,
+        height: 60,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: ShapeDecoration(
           color: Colors.white,
@@ -122,25 +187,18 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
               blurRadius: 6,
               offset: Offset(0, 4),
               spreadRadius: -2,
-            ),
-            BoxShadow(
-              color: Color(0x14101828),
-              blurRadius: 16,
-              offset: Offset(0, 12),
-              spreadRadius: -4,
             )
           ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              currentStatus,
-              style: const TextStyle(
-                color: Color(0xFFADC4CE),
-                fontSize: 16,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w400,
+            Icon(Icons.circle, color: _getColorForStatus(currentStatus)),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                capitalize(currentStatus),
+                style: const TextStyle(fontSize: 16),
               ),
             ),
             const Icon(Icons.arrow_drop_down, color: Colors.grey),
@@ -157,11 +215,11 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
         return Container(
           padding: const EdgeInsets.all(10),
           child: Wrap(
-            children: <String>['Pending', 'Rejected', 'Verified']
+            children: <String>['pending', 'rejected', 'verified']
                 .map((String value) => ListTile(
                       leading:
                           Icon(Icons.circle, color: _getColorForStatus(value)),
-                      title: Text(value),
+                      title: Text(capitalize(value)),
                       onTap: () {
                         Navigator.pop(context);
                         setState(() {
@@ -179,11 +237,11 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
 
   Color _getColorForStatus(String status) {
     switch (status) {
-      case 'Pending':
+      case 'pending':
         return const Color(0x8E8239F7);
-      case 'Rejected':
+      case 'rejected':
         return const Color(0x3DD53535);
-      case 'Verified':
+      case 'verified':
         return const Color(0x7072D535);
       default:
         return Colors.grey;
