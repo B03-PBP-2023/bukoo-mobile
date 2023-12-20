@@ -88,6 +88,7 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
+                    width: double.infinity,
                     decoration: ShapeDecoration(
                       color: Colors.white,
                       shape: RoundedRectangleBorder(
@@ -107,7 +108,15 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Title: ${widget.bookSubmission.book.title}"),
+                          const SizedBox(height: 16),
+                          Text(
+                            "Title: ${widget.bookSubmission.book.title}",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign:
+                                TextAlign.center, // Atur rata tengah di sini
+                          ),
                           Text(
                               "Description: ${widget.bookSubmission.book.description}"),
                           Text(
