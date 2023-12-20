@@ -45,47 +45,45 @@ class BookCard extends StatelessWidget {
         width: getCardWidth(),
         height: getCardHeight(),
         margin: const EdgeInsets.symmetric(vertical: 4),
-        child: Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                  child: Container(
-                decoration: BoxDecoration(boxShadow: [
-                  BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      spreadRadius: 2,
-                      blurRadius: 6,
-                      offset: const Offset(5, 5))
-                ]),
-                child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Image(
-                      image: NetworkImage(imageUrl),
-                      fit: BoxFit.cover,
-                    )),
-              )),
-              const SizedBox(height: 16.0),
-              Container(
-                alignment: Alignment.center,
-                height: (14.0 * 2) + 12,
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Text(
-                author,
-                style: const TextStyle(fontSize: 12),
-                maxLines: 1,
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+                child: Container(
+              decoration: BoxDecoration(boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    spreadRadius: 2,
+                    blurRadius: 6,
+                    offset: const Offset(5, 5))
+              ]),
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image(
+                    image: NetworkImage(imageUrl),
+                    fit: BoxFit.cover,
+                  )),
+            )),
+            const SizedBox(height: 16.0),
+            Container(
+              alignment: Alignment.center,
+              height: (14.0 * 2) + 12,
+              child: Text(
+                title,
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-              )
-            ],
-          ),
+              ),
+            ),
+            Text(
+              author,
+              style: const TextStyle(fontSize: 12),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            )
+          ],
         ),
       ),
     );
