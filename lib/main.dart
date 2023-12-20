@@ -13,6 +13,7 @@ import 'book_collection/screens/home_page.dart';
 import 'package:bukoo/admin_dashboard/admin_dash.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bukoo/user_profile/screens/profile_page.dart';
 
 void main() {
   runApp(const App());
@@ -34,10 +35,7 @@ class App extends StatelessWidget {
         FutureProvider<User>(
           create: (_) async {
             SharedPreferences prefs = await SharedPreferences.getInstance();
-            final request = _.read<CookieRequest>();
-            if (!request.loggedIn) {
-              prefs.remove('user');
-            }
+            final request = _.watch<CookieRequest>();
             String? userJson = prefs.getString('user');
             if (userJson != null) {
               User user = User.fromJson(jsonDecode(userJson));
@@ -60,12 +58,13 @@ class App extends StatelessWidget {
         ),
         initialRoute: HomePage.routeName,
         routes: {
-          HomePage.routeName: (context) => const HomePage(),
-          '/admin_dashboard': (context) => const AdminDash(),
-          LoginPage.routeName: (context) => const LoginPage(),
-          RegisterPage.routeName: (context) => const RegisterPage(),
-          BookSubmissionPage.routeName: (context) => const BookSubmissionPage(),
-          SearchPage.routeName: (context) => const SearchPage(),
+          HomePage.routeName: (context) => HomePage(),
+          LoginPage.routeName: (context) => LoginPage(),
+          RegisterPage.routeName: (context) => RegisterPage(),
+          AdminDash.routeName: (context) => AdminDash(),
+          BookSubmissionPage.routeName: (context) => BookSubmissionPage(),
+          SearchPage.routeName: (context) => SearchPage(),
+          ProfilePage.routeName: (context) => ProfilePage(),
         },
       ),
     );
