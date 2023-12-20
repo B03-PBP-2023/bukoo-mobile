@@ -1,6 +1,7 @@
 import 'package:bukoo/book_collection/models/book.dart';
 import 'package:bukoo/core/config.dart';
 import 'package:bukoo/core/etc/custom_icon_icons.dart';
+import 'package:bukoo/core/models/user.dart';
 import 'package:bukoo/core/widgets/primary_button.dart';
 import 'package:bukoo/core/widgets/secondary_button.dart';
 import 'package:bukoo/forum/forum_page.dart';
@@ -46,6 +47,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
+    final user = context.watch<User>();
 
     double getImageWidth() {
       return MediaQuery.of(context).size.width / 2;
@@ -157,12 +159,32 @@ class _BookDetailPageState extends State<BookDetailPage> {
                                     Align(
                                       alignment: Alignment.center,
                                       child: Text(
-                                          snapshot.data!.authors!.join(', '),
+                                          snapshot.data!.authors!
+                                              .map((author) => author.name!)
+                                              .join(', '),
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodyMedium),
                                     ),
                                     const SizedBox(height: 16),
+                                    if (request.loggedIn &&
+                                        user.isAuthor! &&
+                                        snapshot.data!.authors!
+                                            .map((author) => author.id!)
+                                            .contains(user.profileId)) ...[
+                                      PrimaryButton(
+                                          onPressed: () {},
+                                          child: const Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(CustomIcon.pencil_alt),
+                                              SizedBox(width: 8),
+                                              Text('Edit Book')
+                                            ],
+                                          )),
+                                      const SizedBox(height: 16)
+                                    ],
                                     if (request.loggedIn) ...[
                                       if (isBookmarked)
                                         SecondaryButton(

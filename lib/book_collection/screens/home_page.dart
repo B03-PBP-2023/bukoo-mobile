@@ -186,7 +186,9 @@ class _HomePageState extends State<HomePage> {
                       .map((book) => BookCard(
                           bookId: book.id!,
                           title: book.title!,
-                          author: book.authors![0],
+                          author: book.authors!
+                              .map((author) => author.name!)
+                              .join(', '),
                           imageUrl: book.imageUrl!))
                       .toList(),
                 ),
@@ -196,7 +198,9 @@ class _HomePageState extends State<HomePage> {
                       .map((book) => BookCard(
                           bookId: book.id!,
                           title: book.title!,
-                          author: book.authors!.join(', '),
+                          author: book.authors!
+                              .map((author) => author.name!)
+                              .join(', '),
                           imageUrl: book.imageUrl ?? BookCoverDefault))
                       .toList(),
                 ),
@@ -206,7 +210,9 @@ class _HomePageState extends State<HomePage> {
                       .map((book) => BookCard(
                           bookId: book.id!,
                           title: book.title!,
-                          author: book.authors![0],
+                          author: book.authors!
+                              .map((author) => author.name!)
+                              .join(', '),
                           imageUrl: book.imageUrl!))
                       .toList(),
                 ),
@@ -216,7 +222,9 @@ class _HomePageState extends State<HomePage> {
                       .map((book) => BookCard(
                           bookId: book.id!,
                           title: book.title!,
-                          author: book.authors![0],
+                          author: book.authors!
+                              .map((author) => author.name!)
+                              .join(', '),
                           imageUrl: book.imageUrl!))
                       .toList(),
                 ),
@@ -226,7 +234,9 @@ class _HomePageState extends State<HomePage> {
                       .map((book) => BookCard(
                           bookId: book.id!,
                           title: book.title!,
-                          author: book.authors![0],
+                          author: book.authors!
+                              .map((author) => author.name!)
+                              .join(', '),
                           imageUrl: book.imageUrl!))
                       .toList(),
                 ),

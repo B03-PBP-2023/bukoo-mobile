@@ -1,8 +1,10 @@
+import 'package:bukoo/book_collection/models/author.dart';
+
 class Book {
   final int? id;
   final String? title;
   final String? imageUrl;
-  final List<String>? authors;
+  final List<Author>? authors;
   final String? description;
   final List<String>? genres;
   final String? publisher;
@@ -30,7 +32,8 @@ class Book {
       id: json['id'],
       title: json['title'],
       imageUrl: json['image_url'],
-      authors: json['author'].cast<String>(),
+      authors:
+          json['author'].map<Author>((author) => Author(name: author['name'])),
       description: json['description'],
       genres: json['genres'].cast<String>(),
       publisher: json['publisher'],
@@ -47,7 +50,7 @@ class Book {
       title: json['fields']['title'],
       imageUrl: json['fields']['image_url'],
       authors: json['fields']['author']
-          .map<String>((author) => author['name'] as String)
+          .map<Author>((author) => Author.fromJson(author))
           .toList(),
       description: json['fields']['description'],
       genres: json['fields']['genres']
@@ -67,7 +70,7 @@ class Book {
       title: json['fields']['title'],
       imageUrl: json['fields']['image_url'],
       authors: json['fields']['author']
-          .map<String>((author) => author['name'] as String)
+          .map<Author>((author) => Author.fromJson(author))
           .toList(),
     );
   }

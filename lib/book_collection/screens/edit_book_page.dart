@@ -1,3 +1,4 @@
+import 'package:bukoo/book_collection/models/book.dart';
 import 'package:bukoo/book_collection/widgets/custom_autocomplete_text_field.dart';
 import 'package:bukoo/core/config.dart';
 import 'package:bukoo/core/models/user.dart';
@@ -13,16 +14,17 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-class BookSubmissionPage extends StatefulWidget {
-  const BookSubmissionPage({super.key});
+class EditBookPage extends StatefulWidget {
+  final Book book;
+  const EditBookPage({super.key, required this.book});
 
   static const routeName = '/book-submission';
 
   @override
-  State<BookSubmissionPage> createState() => _BookSubmissionPageState();
+  State<EditBookPage> createState() => _EditBookPageState();
 }
 
-class _BookSubmissionPageState extends State<BookSubmissionPage> {
+class _EditBookPageState extends State<EditBookPage> {
   static const heightOnTop = 100.0;
   bool isLoading = false;
 
@@ -37,12 +39,22 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
   final List<String> _selectedGenres = [];
   final List<String> _selectedAuthors = [];
   File? _imageFile;
+  String? _imageUrl;
 
   // init state
   @override
   void initState() {
     super.initState();
-    _selectedAuthors.add(context.read<User>().name!);
+    _title.text = widget.book.title!;
+    _publisher.text = widget.book.publisher!;
+    _isbn.text = widget.book.isbn!;
+    _language.text = widget.book.language!;
+    _numPages.text = widget.book.numPages.toString();
+    _publishDate.text = widget.book.publishDate!;
+    _description.text = widget.book.description!;
+    _selectedGenres.addAll(widget.book.genres!);
+    _selectedAuthors.addAll(widget.book.authors!.map((e) => e.name!).toList());
+    _imageUrl = widget.book.imageUrl;
   }
 
   Future<void> _pickImage() async {

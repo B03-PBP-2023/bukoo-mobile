@@ -4,6 +4,7 @@ class User {
   String? email;
   bool? isAuthor;
   bool? isAdmin;
+  int? profileId;
 
   User({
     this.name,
@@ -11,6 +12,7 @@ class User {
     this.email,
     this.isAuthor,
     this.isAdmin,
+    this.profileId,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class User {
       email: json['email'],
       isAuthor: json['is_author'],
       isAdmin: json['is_admin'],
+      profileId: json['profile_id'],
     );
   }
 
@@ -29,6 +32,7 @@ class User {
     email = json['email'];
     isAuthor = json['is_author'];
     isAdmin = json['is_admin'];
+    profileId = json['profile_id'];
   }
 
   void resetUser() {
@@ -37,5 +41,6 @@ class User {
     email = null;
     isAuthor = null;
     isAdmin = null;
+    profileId = null;
   }
 }
