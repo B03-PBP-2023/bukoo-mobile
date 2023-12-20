@@ -1,15 +1,15 @@
-// ignore_for_file: use_build_context_synchronously, prefer_final_fields
-
 import 'package:bukoo/core/config.dart';
 import 'package:flutter/material.dart';
+import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
+import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:bukoo/forum/models/forum_model.dart';
 
 class ForumFormPage extends StatefulWidget {
-  final int bookId;
-  const ForumFormPage({super.key, required this.bookId});
+  int bookId;
+  ForumFormPage({Key? key, required this.bookId}) : super(key: key);
 
   @override
   State<ForumFormPage> createState() => _ForumFormPageState();
@@ -17,88 +17,121 @@ class ForumFormPage extends StatefulWidget {
 
 class _ForumFormPageState extends State<ForumFormPage> {
   final _formKey = GlobalKey<FormState>();
-  String _name = "";
+  String _subject = "";
   String _description = "";
-  String _reply = "";
 
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
-
     return Scaffold(
       appBar: AppBar(
         title: const Center(
           child: Text(
-            'Create a discussion',
+            'Create Forum Post',
             style: TextStyle(color: Colors.white),
           ),
         ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: Colors.purple,
         foregroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
+      // Tambahkan widget form di sini
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: "Subject",
-                  labelText: "Subject",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5.0),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    hintText: "Subject",
+                    labelText: "Subject",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
                   ),
-                ),
-                onChanged: (String? value) {
-                  setState(() {
-                    _name = value!;
-                  });
-                },
-                validator: validateInput,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: "Description",
-                  labelText: "Description",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5.0),
-                  ),
-                ),
-                onChanged: (String? value) {
-                  setState(() {
-                    _description = value!;
-                  });
-                },
-                validator: validateInput,
-              ),
-              const SizedBox(height: 16),
-              
-              ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    final response = await postItem(request);
-                    if (response == 'success') {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("New item has been saved!"),
-                        ),
-                      );
-                      Navigator.pop(context); // Kembali ke halaman sebelumnya
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("ERROR, please try again!"),
-                        ),
-                      );
+                  onChanged: (String value) {
+                    setState(() {
+                      _subject = value;
+                    });
+                  },
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
+                      return "Subject tidak boleh kosong!";
                     }
-                  }
-                },
-                child: const Text(
-                  "Save",
-                  style: TextStyle(color: Colors.white),
+                    return null;
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    hintText: "Description",
+                    labelText: "Description",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                  ),
+                  onChanged: (String value) {
+                    setState(() {
+                      _description = value;
+                    });
+                  },
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
+                      return "Description tidak boleh kosong!";
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.purple),
+                    ),
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        // Kirim data forum ke server atau penyimpanan
+                        final forumPost = Forum(
+                          // Ganti ini dengan cara yang sesuai untuk membuat forum post
+                          subject: _subject,
+                          description: _description,
+                        );
+
+                        // Selanjutnya, Anda dapat mengirim forumPost ke server atau menyimpannya.
+                        // Anda dapat menggunakan kode berikut sebagai contoh:
+
+                        final response = await request.postJson(
+                            "$BASE_URL/api/forum/create-forum-ajax/${widget.bookId}/",
+                            jsonEncode(forumPost.toJson()));
+                        if (response['status'] == 'success') {
+                          print(response['status']);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Forum post has been created!"),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  "ERROR, please try again!. Error: ${response['message']}"),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    child: const Text(
+                      "Create Post",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -106,28 +139,5 @@ class _ForumFormPageState extends State<ForumFormPage> {
         ),
       ),
     );
-  }
-
-  String? validateInput(String? value) {
-    if (value == null || value.isEmpty) {
-      return "Field tidak boleh kosong!";
-    }
-    return null;
-  }
-
-  Future<String> postItem(CookieRequest request) async {
-    try {
-      final response = await request.postJson(
-        "$BASE_URL/create-flutter/",
-        jsonEncode(<String, String>{
-          'name': _name,
-          'description': _description,
-          'reply': _reply,
-        }),
-      );
-      return response['status'];
-    } catch (e) {
-      return 'error';
-    }
   }
 }
