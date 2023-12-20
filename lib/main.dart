@@ -34,10 +34,7 @@ class App extends StatelessWidget {
         FutureProvider<User>(
           create: (_) async {
             SharedPreferences prefs = await SharedPreferences.getInstance();
-            final request = _.read<CookieRequest>();
-            if (!request.loggedIn) {
-              prefs.remove('user');
-            }
+            final request = _.watch<CookieRequest>();
             String? userJson = prefs.getString('user');
             if (userJson != null) {
               User user = User.fromJson(jsonDecode(userJson));
