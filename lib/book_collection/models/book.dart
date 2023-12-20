@@ -25,6 +25,22 @@ class Book {
     this.isbn,
   });
 
+  factory Book.fromJson(Map<String, dynamic> json) {
+    return Book(
+      id: json['id'],
+      title: json['title'],
+      imageUrl: json['image_url'],
+      authors: json['author'].cast<String>(),
+      description: json['description'],
+      genres: json['genres'].cast<String>(),
+      publisher: json['publisher'],
+      publishDate: json['publish_date'],
+      numPages: json['num_pages'],
+      language: json['language'],
+      isbn: json['isbn'],
+    );
+  }
+
   factory Book.fromJsonDetail(Map<String, dynamic> json) {
     return Book(
       id: json['pk'],

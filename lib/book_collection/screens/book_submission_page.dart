@@ -1,5 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, avoid_print
-
+import 'package:bukoo/admin_dashboard/admin_dash.dart';
 import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:bukoo/book_collection/widgets/custom_autocomplete_text_field.dart';
 import 'package:bukoo/core/config.dart';
@@ -113,10 +112,21 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
 
         var response = await request.send();
         if (response.statusCode == 201) {
-          Navigator.pushReplacementNamed(context, HomePage.routeName);
+          Map<String, dynamic> newBook = {
+            'title': _title.text,
+            'author': _selectedAuthors,
+            'publisher': _publisher.text,
+            'publish_date': _publishDate.text,
+            'num_pages': _numPages.text,
+            'isbn': _isbn.text,
+            'language': _language.text,
+            'genres': _selectedGenres,
+            'description': _description.text,
+            // tambahkan informasi lainnya sesuai kebutuhan
+          };
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Book submission success!'),
+              content: Text('Book submission Send!'),
             ),
           );
         } else {
@@ -373,3 +383,5 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
         ));
   }
 }
+
+mixin response {}

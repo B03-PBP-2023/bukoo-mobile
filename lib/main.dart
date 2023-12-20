@@ -57,12 +57,12 @@ class App extends StatelessWidget {
         ),
         initialRoute: HomePage.routeName,
         routes: {
-          HomePage.routeName: (context) => const HomePage(),
-          '/admin_dashboard': (context) => const AdminDash(),
-          LoginPage.routeName: (context) => const LoginPage(),
-          RegisterPage.routeName: (context) => const RegisterPage(),
-          BookSubmissionPage.routeName: (context) => const BookSubmissionPage(),
-          SearchPage.routeName: (context) => const SearchPage(),
+          HomePage.routeName: (context) => HomePage(),
+          LoginPage.routeName: (context) => LoginPage(),
+          RegisterPage.routeName: (context) => RegisterPage(),
+          AdminDash.routeName: (context) => AdminDash(),
+          BookSubmissionPage.routeName: (context) => BookSubmissionPage(),
+          SearchPage.routeName: (context) => SearchPage(),
         },
       ),
     );

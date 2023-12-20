@@ -1,5 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
-
+import 'package:bukoo/admin_dashboard/admin_dash.dart';
 import 'package:bukoo/book_collection/screens/book_submission_page.dart';
 import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:bukoo/core/config.dart';
@@ -85,7 +84,7 @@ class LeftDrawer extends StatelessWidget {
                     leading: const Icon(CustomIcon.admin_dashboard),
                     title: const Text('Admin Dashboard'),
                     onTap: () =>
-                        Navigator.pushNamed(context, '/admin_dashboard')),
+                        Navigator.pushNamed(context, AdminDash.routeName)),
               ),
             ),
             Visibility(
