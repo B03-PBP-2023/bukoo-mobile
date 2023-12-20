@@ -15,12 +15,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => BookProvider(),
-      child: App(),
-    ),
-  );
+  runApp(const App());
 }
 
 // void main() {
@@ -69,7 +64,7 @@ class App extends StatelessWidget {
           HomePage.routeName: (context) => HomePage(),
           LoginPage.routeName: (context) => LoginPage(),
           RegisterPage.routeName: (context) => RegisterPage(),
-          AdminDash.routeName: (context) => AdminDash(submittedBooks: []),
+          AdminDash.routeName: (context) => AdminDash(),
           BookSubmissionPage.routeName: (context) => BookSubmissionPage(),
           SearchPage.routeName: (context) => SearchPage(),
         },

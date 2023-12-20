@@ -1,12 +1,11 @@
 // ignore_for_file: library_private_types_in_public_api, avoid_print
 
+import 'package:bukoo/admin_dashboard/models/book_submission.dart';
 import 'package:flutter/material.dart';
-import 'package:bukoo/admin_dashboard/admin_dash.dart';
 
 class DetailAdminPage extends StatefulWidget {
-  final Book book; // Menerima objek buku
-  final List<Book> submittedBooks;
-  DetailAdminPage({Key? key, required this.book, required this.submittedBooks}) : super(key: key);
+  final BookSubmission bookSubmission; // Menerima objek buku
+  const DetailAdminPage({super.key, required this.bookSubmission});
 
   @override
   _DetailAdminPageState createState() => _DetailAdminPageState();
@@ -19,15 +18,15 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
 
   @override
   void initState() {
-    super.initState(); 
-    
-    selectedStatus = widget.book.status; // Mengatur status awal dari buku
+    super.initState();
+
+    selectedStatus =
+        widget.bookSubmission.status; // Mengatur status awal dari buku
     currentStatus = selectedStatus;
   }
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       appBar: AppBar(
         title: Text('Detail Buku'),
@@ -60,14 +59,19 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Title: ${widget.book.title}"),
-                      Text("Description: ${widget.book.description}"),
-                      Text("Genre: ${widget.book.genre}"),
-                      Text("Publisher: ${widget.book.publisher}"),
-                      Text("Language: ${widget.book.language}"),
-                      Text("ISBN: ${widget.book.isbn}"),
-                      Text("Number of Pages: ${widget.book.numberOfPages}"),
-                      Text("Publish Date: ${widget.book.publishDate}"),
+                      Text("Title: ${widget.bookSubmission.book.title}"),
+                      Text(
+                          "Description: ${widget.bookSubmission.book.description}"),
+                      Text(
+                          "Genre: ${widget.bookSubmission.book.genres!.join(', ')}"),
+                      Text(
+                          "Publisher: ${widget.bookSubmission.book.publisher}"),
+                      Text("Language: ${widget.bookSubmission.book.language}"),
+                      Text("ISBN: ${widget.bookSubmission.book.isbn}"),
+                      Text(
+                          "Number of Pages: ${widget.bookSubmission.book.numPages}"),
+                      Text(
+                          "Publish Date: ${widget.bookSubmission.book.publishDate}"),
                     ],
                   ),
                 ),
@@ -192,4 +196,3 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
     super.dispose();
   }
 }
-

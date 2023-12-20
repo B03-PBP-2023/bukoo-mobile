@@ -124,15 +124,6 @@ class _BookSubmissionPageState extends State<BookSubmissionPage> {
             'description': _description.text,
             // tambahkan informasi lainnya sesuai kebutuhan
           };
-
-          List<Map<String, dynamic>> submittedBooks = [newBook];
-
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => AdminDash(
-                  submittedBooks: [newBook]), // Tambahkan data buku ke sini
-            ),
-          );
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Book submission Send!'),
