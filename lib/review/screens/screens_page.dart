@@ -19,19 +19,21 @@ class ReviewPage extends StatefulWidget {
 class Review {
   final String userName;
   final String content;
+  final int reviewiD;
 
-  Review({required this.userName, required this.content});
+  Review(
+      {required this.userName, required this.content, required this.reviewiD});
 
   factory Review.fromJson(Map<String, dynamic> json) {
     return Review(
-      userName: json['user']['name'],
-      content: json['review'],
-    );
+        userName: json['user']['name'],
+        content: json['review'],
+        reviewiD: json['id']);
   }
 }
 
 class _ReviewPageState extends State<ReviewPage> {
-  final String currentUserName = "CurrentUser"; // Replace with actual user name
+  final String currentUserName = "CurrentUser";
 
   Future<Map<String, dynamic>> fetchReviews() async {
     final request = context.watch<CookieRequest>();
@@ -99,38 +101,115 @@ class _ReviewPageState extends State<ReviewPage> {
   }
 
   Future<void> submitReview(String reviewContent) async {
-  String submitReviewUrl = '$BASE_URL/review/${widget.bookId}/create_review/';
-  final request = context.read<CookieRequest>();
-  try {
-    final response = await request.post(
-      submitReviewUrl,
-      {
+    String submitReviewUrl = '$BASE_URL/review/${widget.bookId}/create_review/';
+    final request = context.read<CookieRequest>();
+    try {
+      final response = await request.post(submitReviewUrl, {
         'bookId': widget.bookId.toString(),
         'userName': currentUserName,
         'review': reviewContent,
-      }
-    );
+      });
 
-    // Check if response is in JSON format
-    if (response.headers['content-type']?.contains('application/json') ?? false) {
-      if (response['status'] == 'success') {
-        print('Review submitted successfully');
+      // Check if response is in JSON format
+      if (response.headers['content-type']?.contains('application/json') ??
+          false) {
+        if (response['status'] == 'success') {
+          print('Review submitted successfully');
+        } else {
+          print('Failed to submit review. Error: ${response['message']}');
+        }
       } else {
-        print('Failed to submit review. Error: ${response['message']}');
+        // Handle non-JSON response
+        print('Received non-JSON response: ${response.body}');
       }
-    } else {
-      // Handle non-JSON response
-      print('Received non-JSON response: ${response.body}');
+    } catch (e) {
+      print('Error submitting review: $e');
     }
-  } catch (e) {
-    print('Error submitting review: $e');
   }
-}
 
+  Future<void> deleteReview(int reviewID) async {
+    String deleteReviewUrl = '$BASE_URL/review/$reviewID/delete/';
+    final request = context.read<CookieRequest>();
+    try {
+      final response = await request.post(deleteReviewUrl, {
+        'bookId': widget.bookId.toString(),
+        'userName': currentUserName,
+      });
+
+      if (response['status'] == 'success') {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Review deleted succesfully!')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to delete review.')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error deleting review: $e')));
+    }
+  }
+
+  Future<void> _showEditReviewDialog(Review currentReview) async {
+    final TextEditingController reviewController =
+        TextEditingController(text: currentReview.content);
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Edit Review'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                TextField(
+                  controller: reviewController,
+                  decoration:
+                      const InputDecoration(hintText: "Edit your review here"),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Submit'),
+              onPressed: () async {
+                await _updateReview(
+                    currentReview.reviewiD, reviewController.text);
+                Navigator.of(context).pop();
+                setState(() {});
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _updateReview(int reviewID, String reviewContent) async {
+    String updateReviewUrl = '$BASE_URL/review/$reviewID/edit/';
+    final request = context.read<CookieRequest>();
+    try {
+      final response = await request.post(updateReviewUrl, {
+        'review': reviewContent,
+      });
+
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error updating review: $e')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Review Page!'),
@@ -166,6 +245,25 @@ class _ReviewPageState extends State<ReviewPage> {
                     ),
                   ),
                   ReviewCard(review: currentUserReview),
+                  const SizedBox(height: 8.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          _showEditReviewDialog(currentUserReview);
+                        },
+                        child: const Text('Edit Review'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          await deleteReview(currentUserReview.reviewiD);
+                          setState(() {});
+                        },
+                        child: const Text('Delete Review'),
+                      ),
+                    ],
+                  ),
                   const Divider(),
                 ] else if (request.loggedIn) ...[
                   ElevatedButton(
