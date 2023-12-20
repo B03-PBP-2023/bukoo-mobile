@@ -9,7 +9,6 @@ import 'package:bukoo/core/etc/custom_icon_icons.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:bukoo/user_profile/screens/profile_page.dart';
-import 'package:bukoo/user_profile/screens/author_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LeftDrawer extends StatelessWidget {
