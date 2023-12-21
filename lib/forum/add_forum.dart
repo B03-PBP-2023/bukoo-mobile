@@ -5,9 +5,11 @@ import 'package:bukoo/core/config.dart';
 import 'package:bukoo/core/widgets/custom_text_field.dart';
 import 'package:bukoo/core/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
+import 'package:bukoo/core/widgets/left_drawer.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
+import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:bukoo/forum/models/forum_model.dart';
 
 class ForumFormPage extends StatefulWidget {
@@ -26,7 +28,6 @@ class _ForumFormPageState extends State<ForumFormPage> {
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       appBar: AppBar(

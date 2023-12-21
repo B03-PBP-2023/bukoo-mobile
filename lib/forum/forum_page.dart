@@ -16,6 +16,7 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:bukoo/forum/add_forum.dart';
+import 'package:http/http.dart' as http;
 
 class ForumPage extends StatefulWidget {
   final int bookId;
@@ -42,6 +43,7 @@ class _ForumPageState extends State<ForumPage> {
     setState(() {
       _isLoading = true;
       _forumResponseModel = null;
+      _error = null;
     });
     try {
       var forumResponseModel = await fetchForums();
@@ -49,6 +51,40 @@ class _ForumPageState extends State<ForumPage> {
         _forumResponseModel = forumResponseModel;
         _isLoading = false;
       });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _error = e.toString();
+      });
+    }
+  }
+
+  Future<void> deleteForum(int forumId) async {
+    setState(() {
+      _isLoading = true;
+      _forumResponseModel = null;
+    });
+
+    try {
+      final request = context.read<CookieRequest>();
+      final response = await request.post(
+        '$BASE_URL/delete-forum-flutter/$forumId/',
+        {},
+      );
+
+      if (response['status'] == 'success') {
+        // Forum deletion was successful, refresh the forums
+        refreshForums();
+        setState(() {
+          _isLoading = false;
+        });
+      } else {
+        // Forum deletion failed, handle the error
+        setState(() {
+          _isLoading = false;
+          _error = 'Failed to delete forum: ${response.statusCode}';
+        });
+      }
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -222,7 +258,19 @@ class _ForumPageState extends State<ForumPage> {
                                           const SizedBox(width: 8),
                                           Text("${forum.totalReply} replies")
                                         ],
-                                      ))
+                                      )),
+                                  TextButton(
+                                    onPressed: () async {
+                                      await deleteForum(forum.id!);
+                                    },
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.delete),
+                                        const SizedBox(width: 8),
+                                        Text("Delete Forum"),
+                                      ],
+                                    ),
+                                  )
                                 ]),
                           ),
                           const SizedBox(height: 16),

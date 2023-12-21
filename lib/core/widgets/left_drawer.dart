@@ -1,5 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
-
+import 'package:bukoo/admin_dashboard/admin_dash.dart';
 import 'package:bukoo/book_collection/screens/book_submission_page.dart';
 import 'package:bukoo/book_collection/screens/home_page.dart';
 import 'package:bukoo/core/config.dart';
@@ -9,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:bukoo/core/etc/custom_icon_icons.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:bukoo/user_profile/screens/profile_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LeftDrawer extends StatelessWidget {
@@ -70,10 +70,10 @@ class LeftDrawer extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 24.0),
                 child: ListTile(
-                  leading: const Icon(CustomIcon.profile),
-                  title: const Text('Profile'),
-                  onTap: () => {},
-                ),
+                    leading: const Icon(CustomIcon.profile),
+                    title: const Text('Profile'),
+                    onTap: () =>
+                        Navigator.pushNamed(context, ProfilePage.routeName)),
               ),
             ),
             Visibility(
@@ -85,7 +85,7 @@ class LeftDrawer extends StatelessWidget {
                     leading: const Icon(CustomIcon.admin_dashboard),
                     title: const Text('Admin Dashboard'),
                     onTap: () =>
-                        Navigator.pushNamed(context, '/admin_dashboard')),
+                        Navigator.pushNamed(context, AdminDash.routeName)),
               ),
             ),
             Visibility(
